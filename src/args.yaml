@@ -1,0 +1,65 @@
+name: r2dock
+version: "debug"
+author: Téo Haÿs <teo.hays@pm.me>
+about: Deploys Docker containers using Rhubarbe
+subcommands:
+    - deploy:
+        about: deploys the selected container on nodes
+        args:
+            - verbose:
+                short: v
+                long: verbose
+                help: print debug information
+            - image:
+                short: i
+                long: image
+                value_name: image
+                takes_value: true
+                required: true
+                help: the image to deploy, using the docker:// format
+            - config:
+                short: c
+                long: config
+                takes_value: true
+                help: the config string that you want to send to the container. Escape quotes please.
+            - yaml:
+                short: y
+                long: yaml
+                takes_value: true
+                help: the yaml file that you want to use to deploy your docker configuration
+
+    - destroy:
+        about: destroys containers or images PERMANENTLY
+        args:
+            - verbose:
+                short: v
+                long: verbose
+                help: print debug information
+            - yes:
+                short: y
+                long: yes
+                help: doesn't ask if you really want to destroy the container
+            - image:
+                short: i
+                long: image
+                value_name: image
+                takes_value: true
+                help: the image to destroy PERMANENTLY
+    - list:
+        about: lists the CUSTOM images to deploy. Images on Dockerhub are NOT listed
+        args:
+            - display-all:
+                short: a
+                long: display-all
+                help: adds the images saved from other sources such as DockerHub
+    - save:
+        about: saves the selected container as an image for future use
+        args: 
+            - name:
+                short: name
+                takes_value: true
+                required: true
+                help: name of the image you wish to create
+            - verbose:
+                short: v
+                help: print debug information
