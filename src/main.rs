@@ -24,7 +24,7 @@ fn main() {
         .arg("-c")
         .arg("docker images")
         .output()
-        .expect("Erreur lors de l'exécution de la commande");
+        .expect("Error during command execution");
         io::stdout().write_all(&result.stdout).unwrap();
     }
 }
