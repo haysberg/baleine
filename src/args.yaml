@@ -1,6 +1,6 @@
 name: r2dock
 version: "debug"
-author: Téo Haÿs <teo.hays@pm.me>
+author: Téo Haÿs <teo.hays@inria.fr>
 about: Deploys Docker containers using Rhubarbe
 subcommands:
     - deploy:
@@ -47,11 +47,6 @@ subcommands:
                 help: the image to destroy PERMANENTLY
     - list:
         about: lists the CUSTOM images to deploy. Images on Dockerhub are NOT listed
-        args:
-            - display-all:
-                short: a
-                long: display-all
-                help: adds the images saved from other sources such as DockerHub
     - save:
         about: saves the selected container as an image for future use
         args: 
