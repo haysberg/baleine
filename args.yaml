@@ -58,6 +58,7 @@ subcommands:
             - node: 
                 long: node
                 short: n
+                takes_value: true
                 required: true
                 help: identifier of the node you want to save
             - verbose:

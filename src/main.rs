@@ -20,12 +20,13 @@ fn main() {
         Some("deploy") => println!("deploy"),
         Some("destroy") => println!("destroy"),
         Some("list") => list(matches.subcommand_matches("list"), &config),
-        Some("save") => save(),
+        Some("save") => save(matches.subcommand_matches("save"), &config),
         None => println!("You need to put a subcommand for r2dock to work"),
         _ => unreachable!(),
 
     }
 
+    //TODO : Call the registry HTTP API to get the list of images.
     fn list (args: Option<&clap::ArgMatches>, config: &config::Config){
         let filter = match config.get::<std::string::String>("repository_url") {
             Ok(value) => format!("\"{}/*\"", value),
@@ -51,7 +52,8 @@ fn main() {
         }
     }
 
-    fn save (/*args: Option<&clap::ArgMatches>, config: &config::Config */){
+    //TODO : Add the option to select a node, hardcoded for now.
+    fn save (args: Option<&clap::ArgMatches>, config: &config::Config){
         // Connect to the remote SSH server
         let tcp = TcpStream::connect("172.16.194.128:22").unwrap();
         let mut sess = Session::new().unwrap();
@@ -60,12 +62,19 @@ fn main() {
         sess.userauth_agent("user").unwrap();
 
         let mut channel = sess.channel_session().unwrap();
-        channel.exec("docker commit test 192.168.228.1:5000/image1").unwrap();
+        let cmd = match config.get::<std::string::String>("repository_url") {
+            Ok(value) => format!("docker commit container {0}/{1} && docker push {0}/{1}", value, args.unwrap().value_of("name").unwrap()),
+            Err(e) => format!("{}", e),
+        };
+        channel.exec(&cmd).unwrap();
+
         let mut s = String::new();
         channel.read_to_string(&mut s).unwrap();
         println!("{}", s);
-        channel.wait_close();
-        println!("{}", channel.exit_status().unwrap());
+        match channel.wait_close(){
+            Ok(_) => println!("Container saved and uploaded to the repository !"),
+            Err(_) => println!("Problem during closure of the SSH connection !")
+        }
     }
 
     fn deploy(){
