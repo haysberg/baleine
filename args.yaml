@@ -47,6 +47,11 @@ subcommands:
                 help: the image to destroy PERMANENTLY
     - list:
         about: lists the CUSTOM images to deploy. Images on Dockerhub are NOT listed
+        args:
+            - all:
+                short: a
+                long: list-all
+                help: lists ALL images on the master node, not only those on the registry
     - save:
         about: saves the selected container as an image for future use
         args: 

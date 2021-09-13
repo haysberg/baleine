@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 clap = {version = "*", features = ["yaml"]}
-config = {version = "*", features = ["yaml"]}
+config = {version = "*", features = ["toml"]}
