@@ -19,7 +19,7 @@ fn main() {
     match matches.subcommand_name() {
         Some("deploy") => println!("deploy"),
         Some("destroy") => println!("destroy"),
-        Some("list") => list(matches.subcommand_matches("list"), &config),
+        Some("list") => list(&config),
         Some("save") => save(matches.subcommand_matches("save"), &config),
         None => println!("You need to put a subcommand for r2dock to work"),
         _ => unreachable!(),
@@ -27,29 +27,19 @@ fn main() {
     }
 
     //TODO : Call the registry HTTP API to get the list of images.
-    fn list (args: Option<&clap::ArgMatches>, config: &config::Config){
+    fn list (config: &config::Config){
         let filter = match config.get::<std::string::String>("repository_url") {
             Ok(value) => format!("\"{}/*\"", value),
             Err(e) => format!("{}", e),
         };
         
+        let result = Command::new("sh")
+        .arg("-c")
+        .arg(format!("docker images {}", filter))
+        .output()
+        .expect("Error during command execution");
+        io::stdout().write_all(&result.stdout).unwrap();
 
-        if !args.unwrap().is_present("all"){
-            let result = Command::new("sh")
-            .arg("-c")
-            .arg(format!("docker images {}", filter))
-            .output()
-            .expect("Error during command execution");
-            io::stdout().write_all(&result.stdout).unwrap();
-        }
-        else{
-            let result = Command::new("sh")
-            .arg("-c")
-            .arg("docker images")
-            .output()
-            .expect("Error during command execution");
-            io::stdout().write_all(&result.stdout).unwrap();
-        }
     }
 
     //TODO : Add the option to select a node, hardcoded for now.
