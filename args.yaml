@@ -4,6 +4,8 @@ author: Téo Haÿs <teo.hays@inria.fr>
 about: Deploys Docker containers using Rhubarbe
 subcommands:
     - deploy:
+        settings:
+            - AllowLeadingHyphen
         about: deploys the selected container on nodes
         args:
             - verbose:
@@ -17,16 +19,21 @@ subcommands:
                 takes_value: true
                 required: true
                 help: the image to deploy, using the docker:// format
-            - config:
-                short: c
-                long: config
+            - options:
+                short: o
+                long: options
                 takes_value: true
-                help: the config string that you want to send to the container. Escape quotes please.
+                help: the options string that you want to send to the container. Escape quotes please.
+            - command:
+                short: c
+                long: command
+                takes_value: true
+                help: the command you want to run in the container. This supersedes the default one.
             - yaml:
                 short: y
                 long: yaml
                 takes_value: true
-                help: the yaml file that you want to use to deploy your docker configuration
+                help: the YAML file that you want to use to deploy your docker configuration
 
     - destroy:
         about: destroys containers or images PERMANENTLY

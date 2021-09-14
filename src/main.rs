@@ -17,7 +17,7 @@ fn main() {
 
     //Depending on what subcommand the user has put in the CLI, we call the related function.
     match matches.subcommand_name() {
-        Some("deploy") => println!("deploy"),
+        Some("deploy") => deploy(matches.subcommand_matches("deploy")),
         Some("destroy") => destroy(matches.subcommand_matches("destroy")),
         Some("list") => list(&config),
         Some("save") => save(matches.subcommand_matches("save"), &config),
@@ -89,9 +89,49 @@ fn main() {
         }
     }
 
-    // fn deploy(args: Option<&clap::ArgMatches>, config: &config::Config){
+    //This function is used to deploy a container on a node
+    fn deploy(args: Option<&clap::ArgMatches>){
+        // Connect to the remote SSH server
+        let tcp = TcpStream::connect("172.16.194.128:22").unwrap();
+        let mut sess = Session::new().unwrap();
+        sess.set_tcp_stream(tcp);
+        sess.handshake().unwrap();
+        sess.userauth_agent("user").unwrap();
+        let mut channel = sess.channel_session().unwrap();
 
-    // }
+        let mut options = String::new();
+        if args.unwrap().is_present("options"){
+            options = match args.unwrap().value_of("options"){
+                Some(options) => options.to_string(),
+                None => ("").to_string(),
+            };
+        }
+
+        let command = match args.unwrap().value_of("command"){
+            Some(command) => command[1..command.len() - 1].to_string(),
+            None => ("").to_string(),
+        };
+
+        let cmd = format!("docker run --name container {options} {image} {command} && docker container ls -a",
+            options = options,
+            image = args.unwrap().value_of("image").unwrap(),
+            command = command);
+
+        //We execute the command. Only one command can run in this SSH session.
+        println!("{}", &cmd);
+        channel.exec(&cmd).unwrap();
+
+        //We read the response from the session then print it in the terminal.
+        let mut s = String::new();
+        channel.read_to_string(&mut s).unwrap();
+        println!("{}", s);
+           
+        //We then close the SSH session.
+        match channel.wait_close(){
+            Ok(_) => (),
+            Err(_) => println!("Problem during closure of the SSH connection !")
+        }        
+    }
 
     //This function stops and removes the container currently running on a node.
     fn destroy(args: Option<&clap::ArgMatches>){
