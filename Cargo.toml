@@ -10,3 +10,5 @@ edition = "2018"
 clap = {version = "*", features = ["yaml"]}
 config = {version = "*", features = ["toml"]}
 ssh2 = "*"
+reqwest = {version = "*", features = ["blocking", "json"]}
+serde = "*"
