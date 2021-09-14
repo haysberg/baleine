@@ -108,7 +108,7 @@ fn main() {
         }
 
         let command = match args.unwrap().value_of("command"){
-            Some(command) => command[1..command.len() - 1].to_string(),
+            Some(command) => command.to_string(),
             None => ("").to_string(),
         };
 
