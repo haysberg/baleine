@@ -10,17 +10,17 @@ subcommands:
             - AllowLeadingHyphen
         about: deploys the selected container on nodes
         args:
-            - verbose:
-                short: v
-                long: verbose
-                help: print debug information
+            # - verbose:
+            #     short: v
+            #     long: verbose
+            #     help: print debug information
             - image:
                 short: i
                 long: image
                 value_name: image
                 takes_value: true
                 required: true
-                help: the image to deploy, using the docker:// format
+                help: the image to deploy, <repository>/image:tag format
             - options:
                 short: o
                 long: options
@@ -31,11 +31,11 @@ subcommands:
                 long: command
                 takes_value: true
                 help: the command you want to run in the container. This supersedes the default one.
-            - yaml:
-                short: y
-                long: yaml
-                takes_value: true
-                help: the YAML file that you want to use to deploy your docker configuration
+            # - yaml:
+            #     short: y
+            #     long: yaml
+            #     takes_value: true
+            #     help: the YAML file that you want to use to deploy your docker configuration
             - nodes:
                 short: n
                 long: nodes
@@ -46,10 +46,10 @@ subcommands:
     - destroy:
         about: destroys containers or images PERMANENTLY
         args:
-            - verbose:
-                short: v
-                long: verbose
-                help: print debug information
+            # - verbose:
+            #     short: v
+            #     long: verbose
+            #     help: print debug information
             - yes:
                 short: y
                 long: yes
@@ -75,7 +75,7 @@ subcommands:
                 short: n
                 takes_value: true
                 required: true
-                help: identifier of the node you want to save
-            - verbose:
-                short: v
-                help: print debug information
+            #     help: identifier of the node you want to save
+            # - verbose:
+            #     short: v
+            #     help: print debug information
