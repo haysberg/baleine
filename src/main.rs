@@ -14,7 +14,10 @@ fn main() {
 
     //Loading the settings from config.toml
     let mut config = config::Config::default();
-    config.merge(config::File::with_name("config")).unwrap();
+    match config.merge(config::File::with_name("../config.toml")){
+        Ok(_) => (),
+        Err(err) => println!("{}", err),
+    }
 
     //Depending on what subcommand the user has put in the CLI, we call the related function.
     match matches.subcommand_name() {

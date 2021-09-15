@@ -34,6 +34,12 @@ subcommands:
                 long: yaml
                 takes_value: true
                 help: the YAML file that you want to use to deploy your docker configuration
+            - nodes:
+                short: n
+                long: nodes
+                takes_value: true
+                help: nodes you want to deploy the container on
+                required: true
 
     - destroy:
         about: destroys containers or images PERMANENTLY

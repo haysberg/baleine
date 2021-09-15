@@ -1,6 +1,3 @@
-// use std::io::prelude::*;
-// use std::net::{TcpStream};
-// use ssh2::Session;
 extern crate json;
 
 //This function allows us to list the images available on the registry configured in config.toml

@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 clap = {version = "*", features = ["yaml"]}
-config = {version = "*", features = ["toml"]}
+config = {version = "*", features = ["toml"] }
 ssh2 = "*"
 reqwest = {version = "*", features = ["blocking", "json"]}
 json = "*"
