@@ -12,19 +12,20 @@ pub fn deploy(args: Option<&clap::ArgMatches>){
     sess.userauth_agent("user").unwrap();
     let mut channel = sess.channel_session().unwrap();
 
-    let mut options = String::new();
-    if args.unwrap().is_present("options"){
-        options = match args.unwrap().value_of("options"){
+    //We parse the Docker options that the user might have supplied
+    let options = match args.unwrap().value_of("options"){
             Some(options) => options.to_string(),
+            //If there is no options provided we just return an empty string
             None => ("").to_string(),
-        };
-    }
+    };
 
+    //We do exactly the same for the command 
     let command = match args.unwrap().value_of("command"){
         Some(command) => command.to_string(),
         None => ("").to_string(),
     };
 
+    //We assemble all the arguments to create the command that will be run through SSH on the node
     let cmd = format!("docker run --name container {options} {image} {command} && docker container ls -a",
         options = options,
         image = args.unwrap().value_of("image").unwrap(),

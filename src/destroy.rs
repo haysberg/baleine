@@ -36,6 +36,10 @@ pub fn destroy(args: Option<&clap::ArgMatches>){
         let mut s = String::new();
         channel.read_to_string(&mut s).unwrap();
         println!("{}", s);
+        
+        //We also display stderr just in case
+        channel.stderr().read_to_string(&mut s).unwrap();
+        println!("{}", s);
          
         //We then close the SSH session.
         match channel.wait_close(){

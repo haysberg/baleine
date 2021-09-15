@@ -1,4 +1,5 @@
 #[macro_use]
+//We import the different modules that contain the subcommands
 mod save;
 mod deploy;
 mod list;
