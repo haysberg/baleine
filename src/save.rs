@@ -2,9 +2,12 @@ use std::net::{TcpStream};
 use ssh2::Session;
 use std::io::prelude::*;
 
+extern crate dotenv;
+use dotenv_codegen::dotenv;
+
 //This function takes a container running on a node and saves it to the
 //remote registry configured in config.toml
-pub fn save (args: Option<&clap::ArgMatches>, config: &config::Config){
+pub fn save (args: Option<&clap::ArgMatches>){
     // Connect to the remote SSH server
     let tcp = TcpStream::connect("172.16.194.128:22").unwrap();
     let mut sess = Session::new().unwrap();
@@ -17,7 +20,7 @@ pub fn save (args: Option<&clap::ArgMatches>, config: &config::Config){
     //Here, we create a new image from the running container on the node, and push it to the
     //remote registry.
     let cmd = format!("docker commit container {repository}/{image_name} && docker push {repository}/{image_name}",
-    repository = config.get::<std::string::String>("repository_url").unwrap(),
+    repository = dotenv!("REGISTRY_URL"),
     image_name = args.unwrap().value_of("name").unwrap());
       
     //We execute the command. Only one command can run in this SSH session.

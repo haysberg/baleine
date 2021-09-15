@@ -2,6 +2,8 @@ name: r2dock
 version: "debug"
 author: Téo Haÿs <teo.hays@inria.fr>
 about: Deploys Docker containers using Rhubarbe
+settings :
+    - ArgRequiredElseHelp
 subcommands:
     - deploy:
         settings:
