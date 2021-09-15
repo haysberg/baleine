@@ -42,6 +42,10 @@ subcommands:
                 takes_value: true
                 help: nodes you want to deploy the container on
                 required: true
+            - bypass-check:
+                short: B
+                long: bypass-check
+                help: bypass the check to see if the nodes are running the required Docker-ready image
 
     - destroy:
         about: destroys containers or images PERMANENTLY
@@ -60,6 +64,12 @@ subcommands:
                 value_name: image
                 takes_value: true
                 help: the image to destroy PERMANENTLY
+            - nodes:
+                short: n
+                long: nodes
+                takes_value: true
+                help: nodes you want to destroy
+                required: true
     - list:
         about: lists the CUSTOM images to deploy. Images on Dockerhub are NOT listed
     - save:
