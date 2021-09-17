@@ -72,6 +72,12 @@ subcommands:
                 required: true
     - list:
         about: lists the CUSTOM images to deploy. Images on Dockerhub are NOT listed
+        args:
+            - details:
+                long: details
+                short: d
+                takes_value: true
+                help: name of the image for which you want to display all the different versions available
     - save:
         about: saves the selected container as an image for future use
         args: 

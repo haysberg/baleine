@@ -5,8 +5,8 @@ use std::io::prelude::*;
 extern crate dotenv;
 use dotenv_codegen::dotenv;
 
-//This function takes a container running on a node and saves it to the
-//remote registry configured in config.toml
+///This function takes a container running on a node and saves it to the
+///remote registry configured in config.toml
 pub fn save (args: Option<&clap::ArgMatches>){
     // Connect to the remote SSH server
     let tcp = TcpStream::connect("172.16.194.128:22").unwrap();

@@ -2,7 +2,7 @@ use std::io::prelude::*;
 use std::net::{TcpStream};
 use ssh2::Session;
 
-//This function is used to deploy a container on a node
+///This function is used to deploy a container on a node
 pub fn deploy(args: Option<&clap::ArgMatches>){
     // Connect to the remote SSH server
     let tcp = TcpStream::connect("172.16.194.128:22").unwrap();

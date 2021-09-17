@@ -2,7 +2,7 @@ use std::io::prelude::*;
 use std::net::{TcpStream};
 use ssh2::Session;
 
-//This function stops and removes the container currently running on a node.
+///This function stops and removes the container currently running on a node.
 pub fn destroy(args: Option<&clap::ArgMatches>){
     //We deal with the "yes" flag, which can be triggered with -y or --yes (cf args.yaml)
     //If the user hasn't put the flag, we ask him if he really wants to delete the containers
