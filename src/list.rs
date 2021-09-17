@@ -11,7 +11,10 @@ pub fn list (){
         address = dotenv!("REGISTRY_URL"));
     
     //We call the API in question...
-    let result = reqwest::blocking::get(url).unwrap().text().unwrap();
+    let result = match reqwest::blocking::get(url) {
+        Ok(value) => value.text().unwrap(),
+        Err(_) => "ERROR".to_string(),
+    };
 
     //Then we parse the JSON result.
     let parsed = json::parse(&result);
