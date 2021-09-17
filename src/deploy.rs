@@ -13,11 +13,13 @@ pub fn deploy(args: Option<&clap::ArgMatches>){
     let mut channel = sess.channel_session().unwrap();
 
     //We parse the Docker options that the user might have supplied
-    let options = match args.unwrap().value_of("options"){
-            Some(options) => options.to_string(),
+    let mut options : String = match args.unwrap().value_of("options"){
+            Some(_) => args.unwrap().values_of("options").unwrap().collect(),
             //If there is no options provided we just return an empty string
             None => ("").to_string(),
     };
+
+    options = str::replace(&options, "-", " -");
 
     //We do exactly the same for the command 
     let command = match args.unwrap().value_of("command"){
