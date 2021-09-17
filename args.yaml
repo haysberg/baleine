@@ -32,7 +32,6 @@ subcommands:
                 long: options
                 multiple: true
                 takes_value: true
-                last: true
                 help: the options string that you want to send to the container.
             # - yaml:
             #     short: y

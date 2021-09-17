@@ -28,7 +28,7 @@ pub fn deploy(args: Option<&clap::ArgMatches>){
     };
 
     //We assemble all the arguments to create the command that will be run through SSH on the node
-    let cmd = format!("docker run --name container {options} {image} {command} && docker container ls -a",
+    let cmd = format!("docker run --privileged --cap-add=ALL --name container {options} {image} {command} && docker container ls -a",
         options = options,
         image = args.unwrap().value_of("image").unwrap(),
         command = command);
