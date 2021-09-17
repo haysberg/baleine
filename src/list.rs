@@ -27,13 +27,6 @@ pub fn list (args: Option<&clap::ArgMatches>){
 
     //Then we parse the JSON result.
     let parsed = json::parse(&result);
-
-    //Nice message before the list of images, which allows the user to see the address
-    //of the repo. Just in case.
-    // println!("List of Images on {protocol}{address}", 
-    //     protocol = dotenv!("REGISTRY_PROTOCOL"),
-    //     address = dotenv!("REGISTRY_URL")); 
-
     
     match args.unwrap().value_of("details"){
         Some(image_name) => println!("List of tags for the {} image :", image_name),
