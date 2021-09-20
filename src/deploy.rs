@@ -19,6 +19,8 @@ pub fn deploy(args: Option<&clap::ArgMatches>){
             None => ("").to_string(),
     };
 
+    //We add a space before each options passed on to Docker.
+    //Without doing this they are glued to each other, causing the deployment to fail.
     options = str::replace(&options, "-", " -");
 
     //We do exactly the same for the command 
