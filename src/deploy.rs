@@ -1,11 +1,15 @@
+use std::process::Command;
 use std::io::prelude::*;
 use std::net::{TcpStream};
 use ssh2::Session;
 
+extern crate dotenv;
+use dotenv_codegen::dotenv;
+
 ///This function is used to deploy a container on a node
-pub fn deploy(args: Option<&clap::ArgMatches>){
+pub fn deploy(args: Option<&clap::ArgMatches>, node : String){
     // Connect to the remote SSH server
-    let tcp = TcpStream::connect("172.16.194.128:22").unwrap();
+    let tcp = TcpStream::connect(node).unwrap();
     let mut sess = Session::new().unwrap();
     sess.set_tcp_stream(tcp);
     sess.handshake().unwrap();
@@ -54,4 +58,22 @@ pub fn deploy(args: Option<&clap::ArgMatches>){
         Ok(_) => (),
         Err(_) => println!("Problem during closure of the SSH connection !")
     }        
+}
+
+pub fn deploy_entry(args: Option<&clap::ArgMatches>){
+
+    let nodes_arg : String = args.unwrap().values_of("nodes").unwrap().collect();
+    //let mut nodes = nodes.split_whitespace().map(String::from).collect();
+
+    Command::new("sh")
+    .arg("-c")
+    .arg("nodes")
+    .arg(nodes_arg)
+    .output()
+    .expect("failed to execute process");
+    
+    let nodes : Vec<&str> = dotenv!("NODES").split(" ").collect();
+    for node in nodes {
+        deploy(args, node.to_string());
+    }
 }
