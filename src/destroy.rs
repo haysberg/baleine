@@ -1,9 +1,13 @@
+use std::process::Command;
 use std::io::prelude::*;
 use std::net::{TcpStream};
 use ssh2::Session;
 
+extern crate dotenv;
+use dotenv_codegen::dotenv;
+
 ///This function stops and removes the container currently running on a node.
-pub fn destroy(args: Option<&clap::ArgMatches>){
+pub fn destroy(args: Option<&clap::ArgMatches>, node : &str){
     //We deal with the "yes" flag, which can be triggered with -y or --yes (cf args.yaml)
     //If the user hasn't put the flag, we ask him if he really wants to delete the containers
     let mut choice = String::new();
@@ -18,11 +22,11 @@ pub fn destroy(args: Option<&clap::ArgMatches>){
     //If the user is okay with it, we proceed with the deletion
     if choice.trim() == "y" {
         // Connect to the remote SSH server
-        let tcp = TcpStream::connect("172.16.194.128:22").unwrap();
+        let tcp = TcpStream::connect(format!("{}:22",node)).unwrap();
         let mut sess = Session::new().unwrap();
         sess.set_tcp_stream(tcp);
         sess.handshake().unwrap();
-        sess.userauth_agent("user").unwrap();
+        sess.userauth_password("user", "password").unwrap();
         let mut channel = sess.channel_session().unwrap();
 
         //Here, we assume the container name is just "container"
@@ -50,5 +54,25 @@ pub fn destroy(args: Option<&clap::ArgMatches>){
     //If the user changes his mind, we simply put a message to tell him not to worry.
     else {
         println!("\nAborting.")
+    }
+}
+
+
+pub fn destroy_entry(args: Option<&clap::ArgMatches>){
+
+    let nodes_arg : String = args.unwrap().values_of("nodes").unwrap().collect();
+    //let mut nodes = nodes.split_whitespace().map(String::from).collect();
+
+    Command::new("sh")
+    .arg("-c")
+    .arg("nodes")
+    .arg(nodes_arg)
+    .output()
+    .expect("failed to the nodes command. Are you on a machine with rhubarbe installed ?");
+    
+    let nodes : Vec<&str> = dotenv!("NODES").split(" ").collect();
+    for node in nodes {
+   	    println!("{}", node);
+	    destroy(args, node);
     }
 }
