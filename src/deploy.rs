@@ -7,13 +7,13 @@ extern crate dotenv;
 use dotenv_codegen::dotenv;
 
 ///This function is used to deploy a container on a node
-pub fn deploy(args: Option<&clap::ArgMatches>, node : String){
+pub fn deploy(args: Option<&clap::ArgMatches>, node : &str){
     // Connect to the remote SSH server
-    let tcp = TcpStream::connect(node).unwrap();
+    let tcp = TcpStream::connect(format!("{}:22",node)).unwrap();
     let mut sess = Session::new().unwrap();
     sess.set_tcp_stream(tcp);
     sess.handshake().unwrap();
-    sess.userauth_agent("user").unwrap();
+    sess.userauth_password("user", "password").unwrap();
     let mut channel = sess.channel_session().unwrap();
 
     //We parse the Docker options that the user might have supplied
@@ -74,6 +74,7 @@ pub fn deploy_entry(args: Option<&clap::ArgMatches>){
     
     let nodes : Vec<&str> = dotenv!("NODES").split(" ").collect();
     for node in nodes {
-        deploy(args, node.to_string());
+   	println!("{}", node);
+	deploy(args, node);
     }
 }
