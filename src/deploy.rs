@@ -70,7 +70,7 @@ pub fn deploy_entry(args: Option<&clap::ArgMatches>){
     .arg("nodes")
     .arg(nodes_arg)
     .output()
-    .expect("failed to execute process");
+    .expect("failed to the nodes command. Are you on a machine with rhubarbe installed ?");
     
     let nodes : Vec<&str> = dotenv!("NODES").split(" ").collect();
     for node in nodes {
