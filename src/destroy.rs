@@ -58,10 +58,9 @@ pub fn destroy(args: Option<&clap::ArgMatches>, node : &str){
 }
 
 
-pub fn destroy_entry(args: Option<&clap::ArgMatches>){
+pub fn entry(args: Option<&clap::ArgMatches>){
 
     let nodes_arg : String = args.unwrap().values_of("nodes").unwrap().collect();
-    //let mut nodes = nodes.split_whitespace().map(String::from).collect();
 
     Command::new("sh")
     .arg("-c")
@@ -72,7 +71,7 @@ pub fn destroy_entry(args: Option<&clap::ArgMatches>){
     
     let nodes : Vec<&str> = dotenv!("NODES").split(" ").collect();
     for node in nodes {
-   	    println!("{}", node);
+   	    
 	    destroy(args, node);
     }
 }
