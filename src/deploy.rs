@@ -13,7 +13,7 @@ pub fn deploy(args: Option<&clap::ArgMatches>, node : &str){
     let mut sess = Session::new().unwrap();
     sess.set_tcp_stream(tcp);
     sess.handshake().unwrap();
-    sess.userauth_password("user", "password").unwrap();
+    sess.userauth_password("user", "").unwrap();
     let mut channel = sess.channel_session().unwrap();
 
     //We parse the Docker options that the user might have supplied
