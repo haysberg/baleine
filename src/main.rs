@@ -17,10 +17,10 @@ fn main() {
 
     //Depending on what subcommand the user has put in the CLI, we call the related function.
     match matches.subcommand_name() {
-        Some("deploy") => deploy::deploy_entry(matches.subcommand_matches("deploy")),
-        Some("destroy") => destroy::destroy_entry(matches.subcommand_matches("destroy")),
+        Some("deploy") => deploy::entry(matches.subcommand_matches("deploy")),
+        Some("destroy") => destroy::entry(matches.subcommand_matches("destroy")),
         Some("list") => list::list(matches.subcommand_matches("list")),
-        Some("save") => save::save(matches.subcommand_matches("save")),
+        Some("save") => save::entry(matches.subcommand_matches("save")),
         None => println!("You need to put a subcommand for r2dock to work"),
         _ => unreachable!(),
     }
