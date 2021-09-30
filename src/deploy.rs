@@ -7,8 +7,7 @@ use std::process::{Command};
 
 ///This function is used to deploy a container on a node
 pub fn deploy(args: &clap::ArgMatches, node : &str){
-    // Connect to the remote SSH server
-    println!("{}", node);
+    // Connect to the remote SSH server;
     let tcp = TcpStream::connect(format!("{}:22",node)).unwrap();
     let mut sess = Session::new().unwrap();
     sess.set_tcp_stream(tcp);
@@ -40,18 +39,14 @@ pub fn deploy(args: &clap::ArgMatches, node : &str){
         command = command);
 
     //We execute the command. Only one command can run in this SSH session.
-    println!("{}", &cmd);
     channel.exec(&cmd).unwrap();
 
     //We read the response from the session then print it in the terminal.
     let mut s = String::new();
     channel.read_to_string(&mut s).unwrap();
-    println!("{} : {}", node, s);
-
-    //We also display stderr just in case
-    channel.stderr().read_to_string(&mut s).unwrap();
-    println!("{} : {}", node, s);
-
+    for line in s.split("\n") {
+        println!("{}:  {}", node, line);
+    }
          
     //We then close the SSH session.
     match channel.wait_close(){
@@ -62,26 +57,31 @@ pub fn deploy(args: &clap::ArgMatches, node : &str){
 
 pub fn entry(args: &clap::ArgMatches){
 
+    //Parsing of the arguments so that they are in the scope of the function and not in main() anymore
     let args = args.subcommand_matches("deploy").unwrap();
     
-    //Setting up the nodes variable
+    //Setting up the nodes variable provided by the user
     let nodes : String = args.values_of("nodes").unwrap().collect();
 
+    //We run the "rhubarbe nodes" command to get a list of nodes
+    //Basically we don't do the automatic parsing here.
     let cmd = Command::new("/usr/local/bin/rhubarbe-nodes")
     .arg(nodes)
     .output()
     .expect("Problem while running the nodes command");
 
+    //We then take the list of nodes provided by rhubarbe, and trim the little \n at the end
     let mut nodes = String::from_utf8(cmd.stdout).unwrap();
     nodes.pop();
 
+    //We then create a thread for each node, running the deploy command through SSH
     match crossbeam::scope(|scope| {
         for node in nodes.split(" ") {
             scope.spawn(move |_| {
                 deploy(args, &node);
             });
         }
-    }) {
+    }) { //We display a message depending of the outcome of the commands
         Ok(_) => println!("Deployment complete !"),
         Err(_) => println!("ERROR DURING DEPLOYMENT"),
     };
