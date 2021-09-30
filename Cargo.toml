@@ -11,3 +11,5 @@ dotenv_codegen = "*"
 ssh2 = "*"
 reqwest = {version = "*", features = ["blocking", "json"]}
 json = "*"
+num_cpus = "*"
+crossbeam = "*"
