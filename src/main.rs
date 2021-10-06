@@ -4,14 +4,21 @@ mod save;
 mod deploy;
 mod list;
 mod destroy;
+mod utils;
 
 extern crate dotenv;
+use crate::utils::list_of_images;
 use dotenv::dotenv;
+
+extern crate serde_derive;
+extern crate serde_json;
 
 fn main() {
     //We get the arguments provided by the user, and match them with the ones listed in args.yaml
     let app_yaml = clap::load_yaml!("../args.yaml");
     let matches = clap::App::from_yaml(app_yaml).get_matches();
+
+    list_of_images();
 
     dotenv().ok();
 

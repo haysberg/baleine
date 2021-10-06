@@ -13,3 +13,8 @@ reqwest = {version = "*", features = ["blocking", "json"]}
 json = "*"
 num_cpus = "*"
 crossbeam = "*"
+serde = "*"
+serde_derive = "*"
+serde_json = "*"
+tungstenite = { version = "*", features = ["native-tls"] }
+url = "*"
