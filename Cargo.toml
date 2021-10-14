@@ -18,3 +18,4 @@ serde_derive = "*"
 serde_json = "*"
 tungstenite = { version = "*", features = ["native-tls"] }
 url = "*"
+openssl = { version = "0.10"}
