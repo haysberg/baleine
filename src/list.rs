@@ -46,6 +46,5 @@ pub fn list (args: &clap::ArgMatches){
 }
 
 pub fn entry (args: &clap::ArgMatches){
-    crate::utils::lock();
     list(&args);
 }

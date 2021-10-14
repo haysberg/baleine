@@ -34,11 +34,6 @@ subcommands:
                 multiple: true
                 takes_value: true
                 help: the options string that you want to send to the container.
-            # - yaml:
-            #     short: y
-            #     long: yaml
-            #     takes_value: true
-            #     help: the YAML file that you want to use to deploy your docker configuration
             - nodes:
                 short: n
                 long: nodes
@@ -49,14 +44,13 @@ subcommands:
                 short: B
                 long: bypass-check
                 help: bypass the check to see if the nodes are running the required Docker-ready image
+            - bootstrap:
+                long: bootstrap
+                help: deploys the latest r2dock compatible image on the machine before deploying the container
 
     - destroy:
         about: destroys containers or images PERMANENTLY
         args:
-            # - verbose:
-            #     short: v
-            #     long: verbose
-            #     help: print debug information
             - yes:
                 short: y
                 long: yes
@@ -94,7 +88,4 @@ subcommands:
                 short: n
                 takes_value: true
                 required: true
-            #     help: identifier of the node you want to save
-            # - verbose:
-            #     short: v
-            #     help: print debug information
+                help: identifier of the node you want to save

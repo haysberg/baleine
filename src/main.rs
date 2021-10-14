@@ -16,11 +16,11 @@ extern crate serde_json;
 fn main() {
     dotenv().ok();
 
-    thread::spawn(|| {
-        loop {
-            update_nodes_state();
-        }
-    });
+    // thread::spawn(|| {
+    //     loop {
+    //         update_nodes_state();
+    //     }
+    // });
 
     //We get the arguments provided by the user, and match them with the ones listed in args.yaml
     let app_yaml = clap::load_yaml!("../args.yaml");
