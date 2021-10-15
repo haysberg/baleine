@@ -2,6 +2,10 @@ use tungstenite::Message;
 use openssl::ssl::{SslConnector, SslMethod};
 use std::net::TcpStream;
 use std::env;
+use std::io::prelude::*;
+use ssh2::Session;
+use std::process::{Command, Stdio};
+use std::io::{BufRead, BufReader, Error, ErrorKind};
 
 static mut COUNT : u8 = 0;
 
@@ -56,4 +60,41 @@ pub fn lock(){
             Err(_) => ()
         }
     }
+}
+
+pub fn ssh_command(host : String, command : String) -> Result<(), Error> {
+
+    // let stdout = Command::new("journalctl")
+    // .stdout(Stdio::piped())
+    // .spawn()?
+    // .stdout
+    // .ok_or_else(|| Error::new(ErrorKind::Other,"Could not capture standard output."))?;
+
+
+    // Connect to the remote SSH server
+    let tcp = TcpStream::connect(format!("{}:22",host)).unwrap();
+    let mut sess = Session::new().unwrap();
+    sess.set_tcp_stream(tcp);
+    sess.handshake().unwrap();
+    sess.userauth_password("user", "").unwrap();
+    let mut channel = sess.channel_session().unwrap();
+
+    let mut output_stream = channel.stream(0);
+    let reader = BufReader::new(output_stream);
+
+    //We execute the command. Only one command can run in this SSH session.
+    channel.exec(&command).unwrap();
+
+    //We read the response from the session then print it in the terminal.
+    let mut s = String::new();
+    channel.read_to_string(&mut s).unwrap();
+    for line in s.split("\n") {
+        println!("{}:  {}", host, line);
+    }
+
+    //We then close the SSH session.
+    match channel.wait_close(){
+        Ok(_) => Ok(()),
+        Err(_) => Err(Error::new(ErrorKind::Other, "oh no!"))
+    }        
 }
