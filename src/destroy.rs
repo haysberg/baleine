@@ -1,40 +1,12 @@
 use std::process::Command;
 use std::io::prelude::*;
-use std::net::{TcpStream};
-use ssh2::Session;
+use crate::utils::ssh_command;
 
 ///This function stops and removes the container currently running on a node.
 pub fn destroy(node : &str){
-    // Connect to the remote SSH server
-    let tcp = TcpStream::connect(format!("{}:22",node)).unwrap();
-    let mut sess = Session::new().unwrap();
-    sess.set_tcp_stream(tcp);
-    sess.handshake().unwrap();
-    sess.userauth_password("user", "").unwrap();
-    let mut channel = sess.channel_session().unwrap();
-
-    //Here, we assume the container name is just "container"
-    //We stop it and use docker prune to delete all non-running containers
-    match channel.exec("docker stop container && docker container prune -f"){
-        Ok(_) => println!("Container destroyed."),
-        Err(_) => println!("Error during container destruction.")
-    }
-
-    //We display the result in the terminal
-    let mut s = String::new();
-    channel.read_to_string(&mut s).unwrap();
-    println!("{} : {}", node, s);
-       
-    //We also display stderr just in case
-    channel.stderr().read_to_string(&mut s).unwrap();
-    println!("{} : {}", node, s);
-
-    println!("==================================================================");
-    
-    //We then close the SSH session.
-    match channel.wait_close(){
+    match ssh_command(node.to_string(), "docker stop container && docker container prune -f".to_string()){
         Ok(_) => (),
-        Err(_) => println!("Problem during closure of the SSH connection !")
+        Err(_) => println!("{}", format!("PROBLEM DURING SSH CONNECTION TO NODE {node}", node = node))
     }
 }
 
