@@ -1,14 +1,13 @@
 use std::process::Command;
 use std::io::prelude::*;
-use std::net::{TcpStream};
-use ssh2::Session;
 use crate::utils::ssh_command;
 
 ///This function stops and removes the container currently running on a node.
 pub fn destroy(node : &str){
-    ssh_command(node.to_string(), "docker stop container && docker container prune -f".to_string());
-
-    println!("==================================================================");
+    match ssh_command(node.to_string(), "docker stop container && docker container prune -f".to_string()){
+        Ok(_) => (),
+        Err(_) => println!("{}", format!("PROBLEM DURING SSH CONNECTION TO NODE {node}", node = node))
+    }
 }
 
 
