@@ -47,6 +47,7 @@ subcommands:
             - bootstrap:
                 long: bootstrap
                 help: deploys the latest r2dock compatible image on the machine before deploying the container
+                takes_value: false
 
     - destroy:
         about: destroys containers or images PERMANENTLY

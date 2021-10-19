@@ -5,13 +5,8 @@ mod deploy;
 mod list;
 mod destroy;
 mod utils;
-use std::thread;
 extern crate dotenv;
-use crate::utils::*;
 use dotenv::dotenv;
-
-extern crate serde_derive;
-extern crate serde_json;
 
 fn main() {
     dotenv().ok();

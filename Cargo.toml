@@ -8,7 +8,6 @@ edition = "2018"
 clap = {version = "*", features = ["yaml"]}
 dotenv = "*"
 dotenv_codegen = "*"
-ssh2 = "*"
 reqwest = {version = "*", features = ["blocking", "json"]}
 json = "*"
 num_cpus = "*"
@@ -19,3 +18,4 @@ serde_json = "*"
 tungstenite = { version = "*", features = ["native-tls"] }
 url = "*"
 openssl = { version = "0.10"}
+regex = "*"
