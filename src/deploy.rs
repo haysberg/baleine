@@ -2,6 +2,9 @@ use crate::utils::ssh_command;
 use clap;
 use crossbeam;
 use std::process::{Command};
+extern crate json;
+extern crate dotenv;
+use dotenv_codegen::dotenv;
 
 ///This function is used to deploy a container on a node
 pub fn deploy(args: &clap::ArgMatches, node: &str) {
@@ -52,7 +55,7 @@ pub fn entry(args: &clap::ArgMatches) {
     //We deploy the latest r2dock compatible image if the bootstrap option is used
     if args.is_present("bootstrap") {
         println!("Deploying the latest r2dock image...");
-        crate::utils::bootstrap("ubuntu", &nodes);
+        crate::utils::bootstrap(dotenv!("DEFAULT_BOOTSTRAP_IMAGE"), &nodes);
         println!("Waiting for the nodes to be available...");
         crate::utils::rwait();
     }
