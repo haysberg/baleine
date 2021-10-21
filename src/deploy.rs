@@ -2,8 +2,13 @@ use crate::utils::ssh_command;
 use clap;
 use crossbeam;
 use std::process::{Command};
+extern crate json;
+extern crate dotenv;
+use dotenv_codegen::dotenv;
 
-///This function is used to deploy a container on a node
+/**
+ * This function is used to deploy a container on a node
+ */
 pub fn deploy(args: &clap::ArgMatches, node: &str) {
     //We parse the Docker options that the user might have supplied
     let mut options: String = match args.value_of("options") {
@@ -22,16 +27,23 @@ pub fn deploy(args: &clap::ArgMatches, node: &str) {
         None => ("").to_string(),
     };
 
+    //We then create the command before sending it to the ssh_command() function
     let cmd = format!("docker run --privileged --cap-add=ALL --name container {options} {image} {command} && docker container ls -a", options = options, image = args.value_of("image").unwrap(), command = command);
+    
+    //We run the SSH command
     match ssh_command(node.to_string(), cmd) {
         Ok(_) => (),
         Err(_) => println!(
             "{}",
-            format!("PROBLEM DURING SSH CONNECTION TO NODE {node}", node = node)
+            format!("Could not connect using SSH to {node}, is it on ?", node = node)
         ),
     }
 }
 
+/**
+ * This function acts as an entry point for the deploy function. It does some parsing
+ * And then creates threads to deploy the containers
+ */
 pub fn entry(args: &clap::ArgMatches) {
     //Parsing of the arguments so that they are in the scope of the function and not in main() anymore
     let args = args.subcommand_matches("deploy").unwrap();
@@ -52,7 +64,7 @@ pub fn entry(args: &clap::ArgMatches) {
     //We deploy the latest r2dock compatible image if the bootstrap option is used
     if args.is_present("bootstrap") {
         println!("Deploying the latest r2dock image...");
-        crate::utils::bootstrap("ubuntu", &nodes);
+        crate::utils::bootstrap(dotenv!("DEFAULT_BOOTSTRAP_IMAGE"), &nodes);
         println!("Waiting for the nodes to be available...");
         crate::utils::rwait();
     }

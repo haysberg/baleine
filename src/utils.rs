@@ -7,6 +7,10 @@ use tungstenite::Message;
 
 static mut COUNT: u8 = 0;
 
+/**
+ * Unused command.
+ * Calls the websocket server provided, to get the state of the nodes
+ */
 pub fn update_nodes_state() {
     let mut ctx = SslConnector::builder(SslMethod::tls_client()).unwrap();
     println!("A");
@@ -36,6 +40,11 @@ pub fn update_nodes_state() {
     }
 }
 
+/**
+ * Set the JSON response provided by the update_nodes_state function
+ * as an environment variable to use later.
+ * This allows us to not call it every time.
+ */
 pub fn set_env_json(json_str: String) {
     unsafe {
         COUNT = COUNT + 1;
@@ -48,6 +57,10 @@ pub fn set_env_json(json_str: String) {
     }
 }
 
+/**
+ * Blocks the execution of code until we have infos on
+ * the current nodes.
+ */
 pub fn lock() {
     loop {
         match env::var("MONITOR_NODES") {
@@ -61,6 +74,13 @@ pub fn lock() {
     }
 }
 
+/**
+ * Alows us to run a command on a specified host.
+ * Please note that it doesn't use the SSH2 crate, but instead
+ * the included ssh binary on the master machine.
+ * 
+ * The output is printed in real time and is piped to the current terminal stdout.
+ */
 pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
     let stdout = Command::new("ssh")
         .arg(format!("root@{host}", host = host))
@@ -82,6 +102,12 @@ pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
     Ok(())
 }
 
+/**
+ * This function deploys the latest r2dock image available.
+ * 
+ * By doing this we can be sure that the server receiving the container
+ * is configured correctly.
+ */
 pub fn bootstrap(image: &str, nodes: &String) {
     //Run the imaging through rhubarbe
     let stdout = Command::new("/usr/local/bin/rhubarbe-load")
@@ -103,6 +129,13 @@ pub fn bootstrap(image: &str, nodes: &String) {
     println!("\r");
 }
 
+/**
+ * This function runs the rhubarbe-wait command.
+ * This is important because if we don't do this, we send SSH
+ * commands to a machine that is not ready yet.
+ * 
+ * So if we don't, the program fails and crashes.
+ */
 pub fn rwait() {
     //rwait
     let stdout = Command::new("/usr/local/bin/rhubarbe-wait")

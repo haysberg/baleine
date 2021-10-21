@@ -26,8 +26,8 @@ fn main() {
         Some("deploy") => deploy::entry(&matches),
         Some("destroy") => destroy::entry(&matches),
         Some("list") => list::entry(&matches),
-        Some("save") => save::entry(matches.subcommand_matches("save")),
-        None => println!("You need to put a subcommand for r2dock to work"),
+        Some("save") => save::entry(&matches),
+        None => println!("No subcommand provided. Use --help for more info"),
         _ => unreachable!(),
     }
 }
