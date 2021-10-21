@@ -2,16 +2,22 @@ use std::process::Command;
 use std::io::prelude::*;
 use crate::utils::ssh_command;
 
-///This function stops and removes the container currently running on a node.
+/**
+ * This function stops and removes the container currently running on a node.
+ */
 pub fn destroy(node : &str){
     match ssh_command(node.to_string(), "docker stop container && docker container prune -f".to_string()){
         Ok(_) => (),
-        Err(_) => println!("{}", format!("PROBLEM DURING SSH CONNECTION TO NODE {node}", node = node))
+        Err(_) => println!("{}", format!("Error : could not connect to node {node}, are you sure it is on ?", node = node))
     }
 }
 
-
+/**
+ * Entry point for the destroy feature.
+ * Does parsing and asks for user input for confirmation
+ */
 pub fn entry(args: &clap::ArgMatches){
+
     //We deal with the "yes" flag, which can be triggered with -y or --yes (cf args.yaml)
     //If the user hasn't put the flag, we ask him if he really wants to delete the containers
     let mut choice = String::new();
@@ -23,6 +29,7 @@ pub fn entry(args: &clap::ArgMatches){
         //If he put the "yes" flag we just change the choice string without asking.
         choice.push_str("y")
     }
+
     //If the user is okay with it, we proceed with the deletion
     if choice.trim() == "y" {
 
@@ -31,14 +38,17 @@ pub fn entry(args: &clap::ArgMatches){
         //Setting up the nodes variable
         let nodes : String = args.values_of("nodes").unwrap().collect();
 
+        //Using rhubarbe-nodes to parse the user input
         let cmd = Command::new("/usr/local/bin/rhubarbe-nodes")
         .arg(nodes)
         .output()
         .expect("Problem while running the nodes command");
 
+        //parsing the result from rhubarbe-nodes
         let mut nodes = String::from_utf8(cmd.stdout).unwrap();
-        nodes.pop();
+        nodes.pop(); //Removes the last member, which is a \n newline
 
+        //we create threads and destroy the nodes
         match crossbeam::scope(|scope| {
             for node in nodes.split(" ") {
                 scope.spawn(move |_| {
