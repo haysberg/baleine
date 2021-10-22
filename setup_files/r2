@@ -1,0 +1,10 @@
+#!/bin/bash
+
+container_name=$(docker ps | sed '2q;d' | cut -d" " -f32)
+#if there is no containers running currently
+if [ "$container_name" == "" ]; then
+    echo "There is no container currently running on this machine."
+    docker container ls -a
+    exit
+fi
+docker exec -it $container_name "$@"
