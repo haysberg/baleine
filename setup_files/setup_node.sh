@@ -15,6 +15,7 @@ apt install docker-ce docker-ce-cli containerd.io -y
 #Create a new user and give it permission to use Docker even if not root
 useradd container
 usermod -aG docker container
+mkhomedir_helper container
 
 #We setup the docker daemon to allow sending images to an HTTP registry
 touch /etc/docker/daemon.json
@@ -23,19 +24,11 @@ insecure="{
 }"
 echo $insecure | tee -a /etc/docker/daemon.json > /dev/null
 
-echo "docker exec -i container \"$@\"" | tee /bin/r2 > /dev/null
+echo "docker exec -i container \"\$@\"" | tee /bin/r2 > /dev/null
 chmod +x /bin/r2
 
 echo "# launch docker bash if logging in through SSH
-if [[ -n \$SSH_CONNECTION ]] ; then
-    #extracts the name of the first container on the list. There should be only one per machine anyway.
-    container_name=$(docker ps | sed '2q;d' | cut -d" " -f32)
-    #if there is no containers running currently
-    if [ \"\$container_name\" == \"\" ]; then
-        echo \"There is no container currently running on this machine.\"
-        docker container ls -a
-        exit
-    fi
-    docker exec -it \$container_name bash
+if [ -n \"\$SSH_CLIENT\" ] || [ -n \"\$SSH_TTY\" ]; then
+    docker exec -it container sh
     exit
 fi" | tee -a /home/container/.profile > /dev/null
