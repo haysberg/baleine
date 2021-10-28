@@ -15,7 +15,7 @@ pub fn save (args: &clap::ArgMatches, node: &str){
     let cmd = format!("docker commit container {repository}/{image_name} && docker push {repository}/{image_name}",
     repository = dotenv!("REGISTRY_URL"),
     image_name = args.value_of("name").unwrap());
-    
+
     //We run the docker commit container command on the node. If the ssh_command() function doesn't work
     //We display an error message
     match ssh_command(node.to_string(), cmd){
@@ -37,16 +37,18 @@ pub fn entry(args: &clap::ArgMatches){
 
     //We then run rhubarbe nodes with the nodes.
     //This is a prerequisite to save the nodes
-    Command::new("sh")
-    .arg("-c")
+    let output = Command::new("rhubarbe")
     .arg("nodes")
     .arg(nodes_arg)
     .output()
-    .expect("failed to the nodes command. Are you on a machine with rhubarbe installed ?");
+    .unwrap();
+
+    let mut stdout = String::from_utf8(output.stdout).unwrap();
+    stdout.truncate(stdout.len() - 1);
     
     //Once the nodes command has run, we get the list of parsed nodes
     //by getting the list of nodes in the NODES environment variable
-    let nodes : Vec<&str> = dotenv!("NODES").split(" ").collect();
+    let nodes : Vec<&str> = stdout.split(" ").collect();
 
     //for each of the nodes, we run the save() function
     for node in nodes {
