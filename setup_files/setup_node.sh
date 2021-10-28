@@ -15,6 +15,7 @@ apt install docker-ce docker-ce-cli containerd.io -y
 #Create a new user and give it permission to use Docker even if not root
 useradd container
 usermod -aG docker container
+mkhomedir_helper container
 
 #We setup the docker daemon to allow sending images to an HTTP registry
 touch /etc/docker/daemon.json
@@ -23,6 +24,11 @@ insecure="{
 }"
 echo $insecure | tee -a /etc/docker/daemon.json > /dev/null
 
-echo "docker exec -i container \"$@\"" | tee /bin/r2 > /dev/null
+echo "docker exec -i container \"\$@\"" | tee /bin/r2 > /dev/null
 chmod +x /bin/r2
 
+echo "# launch docker bash if logging in through SSH
+if [ -n \"\$SSH_CLIENT\" ] || [ -n \"\$SSH_TTY\" ]; then
+    docker exec -it container sh
+    exit
+fi" | tee -a /home/container/.profile > /dev/null
