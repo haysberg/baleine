@@ -9,6 +9,7 @@ echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
+apt update
 apt install docker-ce docker-ce-cli containerd.io
 
 #Create a new user and give it permission to use Docker even if not root
