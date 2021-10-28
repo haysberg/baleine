@@ -26,3 +26,16 @@ echo $insecure | tee -a /etc/docker/daemon.json > /dev/null
 echo "docker exec -i container \"$@\"" | tee /bin/r2 > /dev/null
 chmod +x /bin/r2
 
+echo "# launch docker bash if logging in through SSH
+if [[ -n \$SSH_CONNECTION ]] ; then
+    #extracts the name of the first container on the list. There should be only one per machine anyway.
+    container_name=$(docker ps | sed '2q;d' | cut -d" " -f32)
+    #if there is no containers running currently
+    if [ \"\$container_name\" == \"\" ]; then
+        echo \"There is no container currently running on this machine.\"
+        docker container ls -a
+        exit
+    fi
+    docker exec -it \$container_name bash
+    exit
+fi" | tee -a /home/container/.profile > /dev/null
