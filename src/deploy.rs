@@ -4,7 +4,6 @@ use crossbeam;
 use std::process::{Command};
 extern crate json;
 extern crate dotenv;
-use dotenv_codegen::dotenv;
 
 /**
  * This function is used to deploy a container on a node
@@ -63,9 +62,13 @@ pub fn entry(args: &clap::ArgMatches) {
 
     //We deploy the latest r2dock compatible image if the bootstrap option is used
     if args.is_present("bootstrap") {
-        println!("Deploying the latest r2dock image...");
-        crate::utils::bootstrap(dotenv!("DEFAULT_BOOTSTRAP_IMAGE"), &nodes);
-        println!("Waiting for the nodes to be available...");
+        crate::utils::bootstrap("r2dock", &nodes);
+        crate::utils::rwait();
+    }
+
+    //We deploy the specified image if the --ndz option is used
+    if args.is_present("ndz") {
+        crate::utils::bootstrap(args.value_of("ndz").unwrap(), &nodes);
         crate::utils::rwait();
     }
 

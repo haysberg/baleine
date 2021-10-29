@@ -1,3 +1,0 @@
-repository_url = "172.16.194.1:5000"
-registry_protocol = "http://"
-node_prefix = "fit"

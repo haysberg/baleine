@@ -1,5 +1,4 @@
 name: r2dock
-version: "debug"
 author: Téo Haÿs <teo.hays@inria.fr>
 about: Deploys Docker containers using Rhubarbe
 settings :
@@ -11,10 +10,6 @@ subcommands:
             - TrailingVarArg
         about: deploys the selected container on nodes
         args:
-            # - verbose:
-            #     short: v
-            #     long: verbose
-            #     help: print debug information
             - image:
                 short: i
                 long: image
@@ -39,7 +34,6 @@ subcommands:
                 long: nodes
                 takes_value: true
                 help: nodes you want to deploy the container on
-                required: true
             - bypass-check:
                 short: B
                 long: bypass-check
@@ -47,7 +41,13 @@ subcommands:
             - bootstrap:
                 long: bootstrap
                 help: deploys the latest r2dock compatible image on the machine before deploying the container
-                takes_value: false
+                short: b
+                conflicts_with: ndz
+            - ndz:
+                long: ndz
+                help: choose a .ndz image to be deployed before the container
+                conflicts_with: bootstrap
+                takes_value: true
 
     - destroy:
         about: destroys containers or images PERMANENTLY
