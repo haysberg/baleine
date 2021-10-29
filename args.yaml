@@ -17,12 +17,6 @@ subcommands:
                 takes_value: true
                 required: true
                 help: the image to deploy, <repository>/image:tag format
-            - command:
-                short: c
-                long: command
-                takes_value: true
-                multiple: true
-                help: the command you want to run in the container. This supersedes the default one.
             - options:
                 short: o
                 long: options
@@ -48,6 +42,11 @@ subcommands:
                 help: choose a .ndz image to be deployed before the container
                 conflicts_with: bootstrap
                 takes_value: true
+            - force:
+                long: force
+                short: f
+                help: using this flag will delete the previous containers on the hosts, if there is any
+                conflicts_with: [bootstrap, ndz]
 
     - destroy:
         about: destroys containers or images PERMANENTLY
