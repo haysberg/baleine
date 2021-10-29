@@ -72,6 +72,20 @@ pub fn entry(args: &clap::ArgMatches) {
         crate::utils::rwait();
     }
 
+    //We destroy the containers if the --force option is specified
+    if args.is_present("force") {
+        match crossbeam::scope(|scope| {
+            for node in nodes.split(" ") {
+                scope.spawn(move |_| {
+                    crate::destroy::destroy(&node);
+                });
+            }
+        }) {
+            Ok(_) => println!("Destruction complete !"),
+            Err(_) => println!("ERROR DURING DEPLOYMENT"),
+        };
+    }
+
     //We then create a thread for each node, running the deploy command through SSH
     match crossbeam::scope(|scope| {
         for node in nodes.split(" ") {
