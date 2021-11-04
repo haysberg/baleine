@@ -27,7 +27,7 @@ pub fn deploy(args: &clap::ArgMatches, node: &str) {
     };
 
     //We then create the command before sending it to the ssh_command() function
-    let cmd = format!("docker run --privileged --cap-add=ALL --name container {options} {image} {command} && docker container ls -a", options = options, image = args.value_of("image").unwrap(), command = command);
+    let cmd = format!("docker run -v /home/container/container_fs:/var --privileged --cap-add=ALL --name container {options} {image} {command} && docker container ls -a", options = options, image = args.value_of("image").unwrap(), command = command);
     
     //We run the SSH command
     match ssh_command(node.to_string(), cmd) {
