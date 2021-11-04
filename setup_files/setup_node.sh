@@ -20,7 +20,7 @@ mkhomedir_helper container
 #We setup the docker daemon to allow sending images to an HTTP registry
 touch /etc/docker/daemon.json
 insecure="{
-  \"insecure-registries\" : [\"faraday.inria.fr:5000\"]
+  \"insecure-registries\" : [\"faraday.inria.fr:5000\", \"faraday:5000\"]
 }"
 echo $insecure | tee -a /etc/docker/daemon.json > /dev/null
 
@@ -32,3 +32,5 @@ if [ -n \"\$SSH_CLIENT\" ] || [ -n \"\$SSH_TTY\" ]; then
     docker exec -it container sh
     exit
 fi" | tee -a /home/container/.profile > /dev/null
+
+#docker volume create --driver local --opt type=tmpfs --opt device=:/home/container:bind_mount r2dock-bind-mount

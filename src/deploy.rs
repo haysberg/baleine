@@ -4,7 +4,6 @@ use crossbeam;
 use std::process::{Command};
 extern crate json;
 extern crate dotenv;
-use dotenv_codegen::dotenv;
 
 /**
  * This function is used to deploy a container on a node
@@ -28,7 +27,7 @@ pub fn deploy(args: &clap::ArgMatches, node: &str) {
     };
 
     //We then create the command before sending it to the ssh_command() function
-    let cmd = format!("docker run --privileged --cap-add=ALL --name container {options} {image} {command} && docker container ls -a", options = options, image = args.value_of("image").unwrap(), command = command);
+    let cmd = format!("docker run -v /home/container/container_fs:/var --privileged --cap-add=ALL --name container {options} {image} {command} && docker container ls -a", options = options, image = args.value_of("image").unwrap(), command = command);
     
     //We run the SSH command
     match ssh_command(node.to_string(), cmd) {
@@ -63,10 +62,28 @@ pub fn entry(args: &clap::ArgMatches) {
 
     //We deploy the latest r2dock compatible image if the bootstrap option is used
     if args.is_present("bootstrap") {
-        println!("Deploying the latest r2dock image...");
-        crate::utils::bootstrap(dotenv!("DEFAULT_BOOTSTRAP_IMAGE"), &nodes);
-        println!("Waiting for the nodes to be available...");
+        crate::utils::bootstrap("r2dock", &nodes);
         crate::utils::rwait();
+    }
+
+    //We deploy the specified image if the --ndz option is used
+    if args.is_present("ndz") {
+        crate::utils::bootstrap(args.value_of("ndz").unwrap(), &nodes);
+        crate::utils::rwait();
+    }
+
+    //We destroy the containers if the --force option is specified
+    if args.is_present("force") {
+        match crossbeam::scope(|scope| {
+            for node in nodes.split(" ") {
+                scope.spawn(move |_| {
+                    crate::destroy::destroy(&node);
+                });
+            }
+        }) {
+            Ok(_) => println!("Destruction complete !"),
+            Err(_) => println!("ERROR DURING DEPLOYMENT"),
+        };
     }
 
     //We then create a thread for each node, running the deploy command through SSH
