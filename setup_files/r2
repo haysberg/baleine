@@ -1,3 +1,14 @@
 #!/bin/bash
-
-docker exec -i container "$@"
+if [[ $(docker container ps | wc -l) == 1 ]] ; 
+then
+    echo "No running container on the machine. It might be stopped ?"
+    docker container ps -a
+else
+    if [[ $# > 1 ]] ; 
+    then
+        shift
+        docker exec -i container "$@"
+    else
+        docker exec -e COLUMNS="`tput cols`" -e LINES="`tput lines`" -ti container bash
+    fi
+fi
