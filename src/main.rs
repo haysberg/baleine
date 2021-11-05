@@ -11,12 +11,6 @@ use dotenv::dotenv;
 fn main() {
     dotenv().ok();
 
-    // thread::spawn(|| {
-    //     loop {
-    //         update_nodes_state();
-    //     }
-    // });
-
     //We get the arguments provided by the user, and match them with the ones listed in args.yaml
     let app_yaml = clap::load_yaml!("../args.yaml");
     let matches = clap::App::from_yaml(app_yaml).get_matches();    
