@@ -67,24 +67,23 @@ pub fn entry(args: &clap::ArgMatches) {
     }
 
     //We deploy the specified image if the --ndz option is used
-    if args.is_present("ndz") {
+    else if args.is_present("ndz") {
         crate::utils::bootstrap(args.value_of("ndz").unwrap(), &nodes);
         crate::utils::rwait();
     }
 
-    //We destroy the containers if the --force option is specified
-    if args.is_present("force") {
-        match crossbeam::scope(|scope| {
-            for node in nodes.split(" ") {
-                scope.spawn(move |_| {
-                    crate::destroy::destroy(&node);
-                });
-            }
-        }) {
-            Ok(_) => println!("Destruction complete !"),
-            Err(_) => println!("ERROR DURING DEPLOYMENT"),
-        };
-    }
+    //We destroy the containers running before on the host
+    match crossbeam::scope(|scope| {
+        for node in nodes.split(" ") {
+            scope.spawn(move |_| {
+                crate::destroy::destroy_if_container(&node);
+            });
+        }
+    }) {
+        Ok(_) => (),
+        Err(_) => panic!("We could not destroy the running containers for an unknown reason."),
+    };
+    
 
     //We then create a thread for each node, running the deploy command through SSH
     match crossbeam::scope(|scope| {

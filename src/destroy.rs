@@ -3,12 +3,24 @@ use std::io::prelude::*;
 use crate::utils::ssh_command;
 
 /**
- * This function stops and removes the container currently running on a node.
+ * This function stops and removes the container currently running on a node even if there is none.
  */
 pub fn destroy(node : &str){
     match ssh_command(node.to_string(), "docker stop container && docker container prune -f".to_string()){
         Ok(_) => (),
         Err(_) => println!("{}", format!("Error : could not connect to node {node}, are you sure it is on ?", node = node))
+    }
+}
+
+/**
+ * This function stops and removes the container currently running on a node IF THERE IS ONE
+ */
+pub fn destroy_if_container(node : &str){
+    if crate::utils::container_deployed(node){
+        match ssh_command(node.to_string(), "docker stop container && docker container prune -f".to_string()){
+            Ok(_) => (),
+            Err(_) => println!("{}", format!("Error : could not connect to node {node}, are you sure it is on ?", node = node))
+        }
     }
 }
 
