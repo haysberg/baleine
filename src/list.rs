@@ -1,6 +1,6 @@
 extern crate json;
 extern crate dotenv;
-use dotenv_codegen::dotenv;
+use crate::utils::env_var;
 
 /**
  * This function allows us to list the images available on the registry configured in config.toml.
@@ -11,13 +11,13 @@ pub fn list (args: &clap::ArgMatches){
     //We generate the URL used to call the API
     let url = match args.value_of("details"){
         Some(image_name) => format!("{protocol}{address}/v2/{image_name}/tags/list",
-        protocol = dotenv!("REGISTRY_PROTOCOL"),
-        address = dotenv!("REGISTRY_URL"),
+        protocol = env_var("REGISTRY_PROTOCOL"),
+        address = env_var("REGISTRY_URL"),
         image_name = image_name),
         
         None => format!("{protocol}{address}/v2/_catalog",
-        protocol = dotenv!("REGISTRY_PROTOCOL"),
-        address = dotenv!("REGISTRY_URL")),
+        protocol = env_var("REGISTRY_PROTOCOL"),
+        address = env_var("REGISTRY_URL")),
     };
     
     
@@ -32,7 +32,7 @@ pub fn list (args: &clap::ArgMatches){
     
     match args.value_of("details"){
         Some(image_name) => println!("List of tags for the {} image :", image_name),
-        None => println!("List of Images on {protocol}{address}", protocol = dotenv!("REGISTRY_PROTOCOL"), address = dotenv!("REGISTRY_URL")) 
+        None => println!("List of Images on {protocol}{address}", protocol = env_var("REGISTRY_PROTOCOL"), address = env_var("REGISTRY_URL")) 
     }
 
     //We print the list of images before exiting the function.

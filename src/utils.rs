@@ -1,5 +1,6 @@
 use std::io::{BufRead, BufReader, Error, ErrorKind};
 use std::process::{Command, Stdio};
+use std::env;
 
 /**
  * Alows us to run a command on a specified host.
@@ -79,4 +80,13 @@ pub fn rwait() {
         .for_each(|line| println!("{line}", line = line));
 
     println!("\r");
+}
+
+pub fn env_var(key : &str) -> String{
+    match env::var(key){
+        Ok(_) => (),
+        Err(e) => panic!("couldn't interpret {}: {}", key, e),
+    };
+
+    return env::var(key).unwrap();
 }
