@@ -6,16 +6,14 @@ mod list;
 mod destroy;
 mod utils;
 extern crate dotenv;
-use dotenv::dotenv;
+use std::path::Path;
 
 fn main() {
-    dotenv().ok();
-
-    // thread::spawn(|| {
-    //     loop {
-    //         update_nodes_state();
-    //     }
-    // });
+    let p = Path::new("/etc/r2dock/r2dock.conf");
+    match dotenv::from_path(p){
+        Ok(_) => (),
+        Err(e) => panic!("Couldn't access config file at {0}, caused error : {1}", p.display(), e)
+    }
 
     //We get the arguments provided by the user, and match them with the ones listed in args.yaml
     let app_yaml = clap::load_yaml!("../args.yaml");
