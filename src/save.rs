@@ -1,8 +1,7 @@
 use std::process::Command;
-use crate::utils::ssh_command;
+use crate::utils::{ssh_command, env_var};
 
 extern crate dotenv;
-use dotenv_codegen::dotenv;
 
 /**
  * This function takes a container running on a node and saves it to the
@@ -13,7 +12,7 @@ pub fn save (args: &clap::ArgMatches, node: &str){
     //Here, we create a new image from the running container on the node, and push it to the
     //remote registry.
     let cmd = format!("docker commit container {repository}/{image_name} && docker push {repository}/{image_name}",
-    repository = dotenv!("REGISTRY_URL"),
+    repository = env_var("REGISTRY_URL"),
     image_name = args.value_of("name").unwrap());
 
     //We run the docker commit container command on the node. If the ssh_command() function doesn't work
