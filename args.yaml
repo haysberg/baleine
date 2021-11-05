@@ -1,6 +1,6 @@
 name: r2dock
 author: Téo Haÿs <teo.hays@inria.fr>
-about: Deploys Docker containers using Rhubarbe
+about: "Deploys Docker containers using Rhubarbe.\nPlease create issues and read the wiki here : \nhttps://github.com/haysberg/r2dock"
 settings :
     - ArgRequiredElseHelp
 subcommands:
@@ -61,7 +61,6 @@ subcommands:
                 long: nodes
                 takes_value: true
                 help: nodes you want to destroy
-                required: true
     - list:
         about: lists the CUSTOM images to deploy. Images on Dockerhub are NOT listed
         args:
