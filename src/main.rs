@@ -7,17 +7,12 @@ mod destroy;
 mod utils;
 extern crate dotenv;
 use std::path::Path;
-use std::env;
 
 fn main() {
     let p = Path::new("/etc/r2dock/r2dock.conf");
     match dotenv::from_path(p){
         Ok(_) => (),
         Err(e) => panic!("Couldn't access config file at {0}, caused error : {1}", p.display(), e)
-    }
-
-    for (key, value) in env::vars() {
-        println!("{}: {}", key, value);
     }
 
     //We get the arguments provided by the user, and match them with the ones listed in args.yaml
