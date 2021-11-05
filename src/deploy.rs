@@ -1,7 +1,6 @@
 use crate::utils::ssh_command;
 use clap;
 use crossbeam;
-use std::process::{Command};
 extern crate json;
 extern crate dotenv;
 
@@ -46,19 +45,7 @@ pub fn deploy(args: &clap::ArgMatches, node: &str) {
 pub fn entry(args: &clap::ArgMatches) {
     //Parsing of the arguments so that they are in the scope of the function and not in main() anymore
     let args = args.subcommand_matches("deploy").unwrap();
-    //Setting up the nodes variable provided by the user
-    let nodes: String = args.values_of("nodes").unwrap().collect();
-
-    //We run the "rhubarbe nodes" command to get a list of nodes
-    //Basically we don't do the automatic parsing here.
-    let cmd = Command::new("/usr/local/bin/rhubarbe-nodes")
-        .arg(nodes)
-        .output()
-        .expect("Problem while running the nodes command");
-
-    //We then take the list of nodes provided by rhubarbe, and trim the little \n at the end
-    let mut nodes = String::from_utf8(cmd.stdout).unwrap();
-    nodes.pop();
+    let nodes = crate::utils::list_of_nodes(&args);
 
     //We deploy the latest r2dock compatible image if the bootstrap option is used
     if args.is_present("bootstrap") {

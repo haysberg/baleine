@@ -107,3 +107,35 @@ pub fn container_deployed(host : &str) -> bool{
     let stdout = String::from_utf8(output.stdout).unwrap();
     return !stdout.contains("1\n");
 }
+
+pub fn list_of_nodes(args: &clap::ArgMatches) -> String {
+    if match env::var("NODES"){
+        Ok(value) => if value != "" {true} else {false},
+        Err(_) => false
+    }{
+        return env::var("NODES").unwrap();
+    }
+
+    else if args.is_present("nodes") {
+        //Setting up the nodes variable provided by the user
+        let nodes: String = args.values_of("nodes").unwrap().collect();
+
+        //We run the "rhubarbe nodes" command to get a list of nodes
+        //Basically we don't do the automatic parsing here.
+        let cmd = Command::new("/usr/local/bin/rhubarbe-nodes")
+        .arg(nodes)
+        .output()
+        .expect("Problem while running the nodes command");
+
+        //We then take the list of nodes provided by rhubarbe, and trim the \n at the end
+        let mut nodes = String::from_utf8(cmd.stdout).unwrap();
+        nodes.pop();
+
+        return nodes;
+    }
+    else{
+        println!("$NODES is not set, and you didn't provide a list of nodes. Please use the -n option.");
+        panic!("NODES UNKNOWN");
+    }
+        
+}
