@@ -90,3 +90,20 @@ pub fn env_var(key : &str) -> String{
 
     return env::var(key).unwrap();
 }
+
+pub fn container_deployed(host : &str) -> bool{
+    let output = Command::new("ssh")
+    .arg(format!("root@{host}", host = host))
+    .arg("-t")
+    .arg("docker container ls -a | wc -l")
+    // Tell the OS to record the command's output
+    .stdout(Stdio::piped())
+    // execute the command, wait for it to complete, then capture the output
+    .output()
+    // Blow up if the OS was unable to start the program
+    .unwrap();
+
+    // extract the raw bytes that we captured and interpret them as a string
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    return !stdout.contains("1\n");
+}

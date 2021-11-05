@@ -9,6 +9,8 @@ extern crate dotenv;
 use std::path::Path;
 
 fn main() {
+    //Loading the configuration file.
+    //Keep in mind that these variables can be overwritten as they are environment variables.
     let p = Path::new("/etc/r2dock/r2dock.conf");
     match dotenv::from_path(p){
         Ok(_) => (),
