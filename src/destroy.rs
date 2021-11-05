@@ -1,14 +1,25 @@
-use std::process::Command;
 use std::io::prelude::*;
 use crate::utils::ssh_command;
 
 /**
- * This function stops and removes the container currently running on a node.
+ * This function stops and removes the container currently running on a node even if there is none.
  */
 pub fn destroy(node : &str){
     match ssh_command(node.to_string(), "docker stop container && docker container prune -f".to_string()){
         Ok(_) => (),
         Err(_) => println!("{}", format!("Error : could not connect to node {node}, are you sure it is on ?", node = node))
+    }
+}
+
+/**
+ * This function stops and removes the container currently running on a node IF THERE IS ONE
+ */
+pub fn destroy_if_container(node : &str){
+    if crate::utils::container_deployed(node){
+        match ssh_command(node.to_string(), "docker stop container && docker container prune -f".to_string()){
+            Ok(_) => (),
+            Err(_) => println!("{}", format!("Error : could not connect to node {node}, are you sure it is on ?", node = node))
+        }
     }
 }
 
@@ -36,17 +47,7 @@ pub fn entry(args: &clap::ArgMatches){
         let args = args.subcommand_matches("destroy").unwrap();
         
         //Setting up the nodes variable
-        let nodes : String = args.values_of("nodes").unwrap().collect();
-
-        //Using rhubarbe-nodes to parse the user input
-        let cmd = Command::new("/usr/local/bin/rhubarbe-nodes")
-        .arg(nodes)
-        .output()
-        .expect("Problem while running the nodes command");
-
-        //parsing the result from rhubarbe-nodes
-        let mut nodes = String::from_utf8(cmd.stdout).unwrap();
-        nodes.pop(); //Removes the last member, which is a \n newline
+        let nodes = crate::utils::list_of_nodes(&args);
 
         //we create threads and destroy the nodes
         match crossbeam::scope(|scope| {
