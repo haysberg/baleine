@@ -58,7 +58,7 @@ pub fn entry(args: &clap::ArgMatches){
             }
         }) {
             Ok(_) => println!("Destruction complete !"),
-            Err(_) => println!("ERROR DURING DEPLOYMENT"),
+            Err(_) => println!("ERROR DURING DESTRUCTION"),
         };
     }
     //If the user changes his mind, we simply put a message to tell him not to worry.

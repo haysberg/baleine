@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# debug
-#echo $0
-#for a in "$@"; do
-#    printf "%s\n" "$a"
-#done
-
 if ! docker inspect container > /dev/null 2>&1; then
     echo "No running container on the machine. It might be stopped ?"
     exit 1
