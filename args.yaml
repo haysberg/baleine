@@ -3,12 +3,16 @@ author: Téo Haÿs <teo.hays@inria.fr>
 about: "Deploys Docker containers using Rhubarbe.\nPlease create issues and read the wiki here : \nhttps://github.com/haysberg/r2dock"
 settings :
     - ArgRequiredElseHelp
+    - InferSubcommands
+    - DeriveDisplayOrder
+    - DontCollapseArgsInUsage
 subcommands:
     - deploy:
         settings:
             - AllowLeadingHyphen
-            - TrailingVarArg
+            #- TrailingVarArg
         about: deploys the selected container on nodes
+        usage: r2dock deploy [FLAGS] [OPTIONS] --image <image> --command <command>
         args:
             - image:
                 short: i
@@ -20,8 +24,8 @@ subcommands:
             - options:
                 short: o
                 long: options
-                multiple: true
                 takes_value: true
+                multiple: true
                 help: the options string that you want to send to the container.
             - nodes:
                 short: n
@@ -42,6 +46,11 @@ subcommands:
                 help: choose a .ndz image to be deployed before the container
                 conflicts_with: bootstrap
                 takes_value: true
+            - command:
+                long: command
+                help: Use this option to choose what command to pass to the container. ALWAYS USE LAST.
+                takes_value: true
+                multiple: true
 
     - destroy:
         about: destroys containers or images PERMANENTLY

@@ -1,6 +1,7 @@
 use std::io::{BufRead, BufReader, Error, ErrorKind};
 use std::process::{Command, Stdio};
 use std::env;
+use regex::Regex;
 
 /**
  * Alows us to run a command on a specified host.
@@ -138,4 +139,47 @@ pub fn list_of_nodes(args: &clap::ArgMatches) -> String {
         panic!("NODES UNKNOWN");
     }
         
+}
+
+pub fn parse_options_cmd(args: &clap::ArgMatches) -> (String, String){
+    let mut command: String = "".to_string();
+    let mut options: String = match args.value_of("options") {
+        Some(_) => args.values_of("options").unwrap().collect(),
+        //If there is no options provided we just return an empty string
+        None => ("").to_string(),
+    };
+
+    if args.is_present("options") {
+        //We parse the Docker options that the user might have supplied
+
+
+        //We start parsing the "command" argument.
+        //Due to some limitations in the clap.rs library, the command argument is part of the "options" argument if they are both used.
+        if options.contains("--command") {
+            command = options.split("--command").last().unwrap().to_string();
+        }
+
+        let re = Regex::new(r"\--command.*").unwrap();
+        options = re.replace(&options, "").to_string();
+
+        //We add a space before each options passed on to Docker.
+        //Without doing this they are glued to each other, causing the deployment to fail.
+        options = str::replace(&options, "-", " -");
+
+        command = str::replace(&command, "-", " -").replace("- -", "--");
+
+        // if command == "" {
+        //     command = "sleep infinity".to_string();
+        // }
+        (command, options)
+    } else {
+        let mut command: String = match args.value_of("command") {
+            Some(_) => args.values_of("command").unwrap().collect(),
+            //If there is no options provided we just return an empty string
+            None => ("").to_string(),
+        };
+        command = str::replace(&command, "-", " -").replace("- -", "--");
+        (command, options)
+    }
+
 }
