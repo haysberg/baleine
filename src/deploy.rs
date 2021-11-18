@@ -1,39 +1,30 @@
 use crate::utils::ssh_command;
+use crate::utils::parse_options_cmd;
 use clap;
 use crossbeam;
-extern crate json;
+
 extern crate dotenv;
+extern crate json;
 
 /**
  * This function is used to deploy a container on a node
  */
 pub fn deploy(args: &clap::ArgMatches, node: &str) {
-    //We parse the Docker options that the user might have supplied
-    let mut options: String = match args.value_of("options") {
-        Some(_) => args.values_of("options").unwrap().collect(),
-        //If there is no options provided we just return an empty string
-        None => ("").to_string(),
-    };
-
-    //We add a space before each options passed on to Docker.
-    //Without doing this they are glued to each other, causing the deployment to fail.
-    options = str::replace(&options, "-", " -");
-
-    //We do exactly the same for the command
-    let command = match args.value_of("command") {
-        Some(command) => command.to_string(),
-        None => ("").to_string(),
-    };
+    let (command, options) = parse_options_cmd(args);
 
     //We then create the command before sending it to the ssh_command() function
-    let cmd = format!("docker run -v /home/container/container_fs:/var --privileged --cap-add=ALL --name container {options} {image} {command} && docker container ls -a", options = options, image = args.value_of("image").unwrap(), command = command);
-    
+    let cmd = format!("docker run --name container -v /home/container/container_fs:/var --privileged --cap-add=ALL {options} {image} {command} && docker container ls -a", options = options, image = args.value_of("image").unwrap(), command = command);
+    println!("{}", cmd);
+
     //We run the SSH command
     match ssh_command(node.to_string(), cmd) {
         Ok(_) => (),
         Err(_) => println!(
             "{}",
-            format!("Could not connect using SSH to {node}, is it on ?", node = node)
+            format!(
+                "Could not connect using SSH to {node}, is it on ?",
+                node = node
+            )
         ),
     }
 }
@@ -52,7 +43,6 @@ pub fn entry(args: &clap::ArgMatches) {
         crate::utils::bootstrap("r2dock", &nodes);
         crate::utils::rwait();
     }
-
     //We deploy the specified image if the --ndz option is used
     else if args.is_present("ndz") {
         crate::utils::bootstrap(args.value_of("ndz").unwrap(), &nodes);
@@ -70,7 +60,6 @@ pub fn entry(args: &clap::ArgMatches) {
         Ok(_) => (),
         Err(_) => panic!("We could not destroy the running containers for an unknown reason."),
     };
-    
 
     //We then create a thread for each node, running the deploy command through SSH
     match crossbeam::scope(|scope| {

@@ -1,3 +1,13 @@
 #!/bin/bash
 
-docker exec -i container "$@"
+if ! docker inspect container > /dev/null 2>&1; then
+    echo "No running container on the machine. It might be stopped ?"
+    exit 1
+elif [[ -z "$@" ]]; then
+    docker exec -it container /bin/bash
+else
+    case "$1" in
+	"-c") shift;;
+    esac
+    docker exec container bash -c "$@"
+fi
