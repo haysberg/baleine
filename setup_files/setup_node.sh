@@ -3,6 +3,7 @@
 #Install Docker
 apt-get remove docker docker-engine docker.io containerd runc -y
 apt update -y
+apt upgrade -y
 apt install ca-certificates curl gnupg lsb-release -y
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 echo \
@@ -29,6 +30,6 @@ chmod +x /bin/r2
 
 echo "/bin/r2" | tee /etc/shells > /dev/null
 
-chsh --shell /bin/sh tecmint
+chsh --shell /bin/sh container
 
 #docker volume create --driver local --opt type=tmpfs --opt device=:/home/container:bind_mount r2dock-bind-mount
