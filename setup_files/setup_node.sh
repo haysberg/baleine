@@ -27,10 +27,5 @@ echo $insecure | tee -a /etc/docker/daemon.json > /dev/null
 echo "docker exec -i container \"\$@\"" | tee /bin/r2 > /dev/null
 chmod +x /bin/r2
 
-echo "# launch docker bash if logging in through SSH
-if [ -n \"\$SSH_CLIENT\" ] || [ -n \"\$SSH_TTY\" ]; then
-    docker exec -it container sh
-    exit
-fi" | tee -a /home/container/.profile > /dev/null
 
 #docker volume create --driver local --opt type=tmpfs --opt device=:/home/container:bind_mount r2dock-bind-mount
