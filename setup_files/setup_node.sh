@@ -32,6 +32,6 @@ chmod +x /bin/r2
 echo "/bin/r2" >> /etc/shells
 
 passwd -d container
-chsh --shell /bin/sh container
+chsh --shell /bin/r2 container
 
 #docker volume create --driver local --opt type=tmpfs --opt device=:/home/container:bind_mount r2dock-bind-mount
