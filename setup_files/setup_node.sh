@@ -25,11 +25,14 @@ insecure="{
 }"
 echo $insecure | tee -a /etc/docker/daemon.json > /dev/null
 
-echo "docker exec -i container \"\$@\"" | tee /bin/r2 > /dev/null
+wget https://raw.githubusercontent.com/haysberg/r2dock/main/setup_files/r2
+cp ./r2 /bin/r2
 chmod +x /bin/r2
 
 echo "/bin/r2" | tee /etc/shells > /dev/null
 
 chsh --shell /bin/sh container
+
+passwd -d container
 
 #docker volume create --driver local --opt type=tmpfs --opt device=:/home/container:bind_mount r2dock-bind-mount
