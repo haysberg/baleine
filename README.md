@@ -1,12 +1,17 @@
 # r2dock
 ### This software allows you to deploy Docker containers on top of the rhubarbe platform.
 
-# How to run
+# How to install the CLI on the master
 ```
 git clone https://github.com/haysberg/r2dock
 cd r2dock
 cargo build --release
 ./target/release/r2dock --help
+```
+
+# How to setup a slave node
+```
+sudo sh -c "$(wget https://raw.github.com/haysberg/r2dock/master/setup_files/setup_node.sh -O -)"
 ```
 # Examples
 ## Deploy a container on a node
