@@ -183,3 +183,19 @@ pub fn parse_options_cmd(args: &clap::ArgMatches) -> (String, String){
     }
 
 }
+
+/**
+ * Alows us to run a command on a specified host.
+ * Please note that it doesn't use the SSH2 crate, but instead
+ * the included ssh binary on the master machine.
+ * 
+ * The output is printed in real time and is piped to the current terminal stdout.
+ */
+pub fn tset(){
+    let _stdout = Command::new("tset")
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap()
+        .stdout
+        .ok_or_else(|| Error::new(ErrorKind::Other, "Could not capture standard output."));
+}

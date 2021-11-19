@@ -1,5 +1,6 @@
 use crate::utils::ssh_command;
 use crate::utils::parse_options_cmd;
+use crate::utils::tset;
 use clap;
 use crossbeam;
 
@@ -73,4 +74,6 @@ pub fn entry(args: &clap::ArgMatches) {
         Ok(_) => println!("Deployment complete !"),
         Err(_) => println!("ERROR DURING DEPLOYMENT"),
     };
+
+    tset();
 }

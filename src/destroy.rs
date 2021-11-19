@@ -1,5 +1,6 @@
 use std::io::prelude::*;
 use crate::utils::ssh_command;
+use crate::utils::tset;
 
 /**
  * This function stops and removes the container currently running on a node even if there is none.
@@ -60,6 +61,8 @@ pub fn entry(args: &clap::ArgMatches){
             Ok(_) => println!("Destruction complete !"),
             Err(_) => println!("ERROR DURING DESTRUCTION"),
         };
+
+        tset();
     }
     //If the user changes his mind, we simply put a message to tell him not to worry.
     else {
