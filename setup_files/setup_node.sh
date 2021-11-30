@@ -35,4 +35,4 @@ echo "/bin/r2" >> /etc/shells
 passwd -d container
 chsh --shell /bin/r2 container
 
-echo "138.96.16.97	faraday" >> /etc/hosts
+echo "192.168.3.100	faraday" >> /etc/hosts
