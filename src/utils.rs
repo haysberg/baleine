@@ -195,9 +195,9 @@ pub fn parse_options_cmd(args: &clap::ArgMatches) -> (String, String) {
  * The output is printed in real time and is piped to the current terminal stdout.
  */
 pub fn stty_sane() {
-    match Command::new("/usr/bin/stty sane").spawn(){
+    match Command::new("/usr/bin/stty").arg("sane").spawn(){
      Ok(_) => (),
-     Err(_) => ()  
+     Err(e) => println!("{}", e)  
     }
 
     match Command::new("/usr/bin/echo").arg("").spawn(){
