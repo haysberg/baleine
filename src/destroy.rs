@@ -50,6 +50,8 @@ pub fn entry(args: &clap::ArgMatches){
         //Setting up the nodes variable
         let nodes = crate::utils::list_of_nodes(&args);
 
+        println!("Mapping : {}", "docker stop container && docker container prune -f".to_string());
+        
         //we create threads and destroy the nodes
         match crossbeam::scope(|scope| {
             for node in nodes.split(" ") {
