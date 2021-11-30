@@ -197,7 +197,7 @@ pub fn parse_options_cmd(args: &clap::ArgMatches) -> (String, String) {
 pub fn stty_sane() {
     match Command::new("/usr/bin/stty").arg("sane").spawn(){
      Ok(_) => (),
-     Err(e) => println!("{}", e)  
+     Err(_) => ()
     }
 
     match Command::new("/usr/bin/echo").arg("").spawn(){

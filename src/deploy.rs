@@ -1,5 +1,5 @@
-use crate::utils::ssh_command;
 use crate::utils::parse_options_cmd;
+use crate::utils::ssh_command;
 use crate::utils::stty_sane;
 use clap;
 use crossbeam;
@@ -14,12 +14,14 @@ pub fn deploy(args: &clap::ArgMatches, node: &str) {
     let (command, options) = parse_options_cmd(args);
 
     //We then create the command before sending it to the ssh_command() function
-    let cmd = format!("docker run --name container -v /home/container/container_fs:/var --privileged --cap-add=ALL {options} {image} {command} && docker container ls -a", options = options, image = args.value_of("image").unwrap(), command = command);
-    println!("{}", cmd);
+    let cmd = format!("docker run --name container -v /home/container/container_fs:/var --privileged --cap-add=ALL {options} {image} {command} && docker container ls -a",
+    options = options,
+    image = args.value_of("image").unwrap(),
+    command = command);
 
     //We run the SSH command
     match ssh_command(node.to_string(), cmd) {
-        Ok(_) => (),
+        Ok(_) => stty_sane(),
         Err(_) => println!(
             "{}",
             format!(
@@ -61,6 +63,9 @@ pub fn entry(args: &clap::ArgMatches) {
         Ok(_) => (),
         Err(_) => panic!("We could not destroy the running containers for an unknown reason."),
     };
+
+    let cmd = format!("docker run --name container -v /home/container/container_fs:/var --privileged --cap-add=ALL {options} {image} {command} && docker container ls -a", options = parse_options_cmd(args).1, image = args.value_of("image").unwrap(), command = parse_options_cmd(args).0);
+    println!("Mapping : {}", cmd);
 
     //We then create a thread for each node, running the deploy command through SSH
     match crossbeam::scope(|scope| {
