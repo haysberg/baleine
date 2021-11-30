@@ -1,5 +1,6 @@
 use std::io::prelude::*;
 use crate::utils::ssh_command;
+use crate::utils::stty_sane;
 
 /**
  * This function stops and removes the container currently running on a node even if there is none.
@@ -49,6 +50,8 @@ pub fn entry(args: &clap::ArgMatches){
         //Setting up the nodes variable
         let nodes = crate::utils::list_of_nodes(&args);
 
+        println!("Mapping : {}", "docker stop container && docker container prune -f".to_string());
+        
         //we create threads and destroy the nodes
         match crossbeam::scope(|scope| {
             for node in nodes.split(" ") {
@@ -60,6 +63,8 @@ pub fn entry(args: &clap::ArgMatches){
             Ok(_) => println!("Destruction complete !"),
             Err(_) => println!("ERROR DURING DESTRUCTION"),
         };
+
+        stty_sane();
     }
     //If the user changes his mind, we simply put a message to tell him not to worry.
     else {

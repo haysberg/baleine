@@ -21,7 +21,8 @@ mkhomedir_helper container
 #We setup the docker daemon to allow sending images to an HTTP registry
 touch /etc/docker/daemon.json
 insecure="{
-  \"insecure-registries\" : [\"faraday.inria.fr:5000\", \"faraday:5000\"]
+  \"insecure-registries\" : [\"faraday.inria.fr:5000\", \"faraday\"],
+  \"registry-mirrors\": [\"http://faraday\"]
 }"
 echo $insecure | tee -a /etc/docker/daemon.json > /dev/null
 
@@ -33,3 +34,5 @@ echo "/bin/r2" >> /etc/shells
 
 passwd -d container
 chsh --shell /bin/r2 container
+
+echo "138.96.16.97	faraday" >> /etc/hosts

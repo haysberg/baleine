@@ -1,6 +1,6 @@
 name: r2dock
 author: Téo Haÿs <teo.hays@inria.fr>
-about: "Deploys Docker containers using Rhubarbe.\nPlease create issues and read the wiki here : \nhttps://github.com/haysberg/r2dock"
+about: "Deploys Docker containers using Rhubarbe. \nPlease create issues and read the wiki here : \nhttps://github.com/haysberg/r2dock"
 settings :
     - ArgRequiredElseHelp
     - InferSubcommands
@@ -10,9 +10,9 @@ subcommands:
     - deploy:
         settings:
             - AllowLeadingHyphen
-            #- TrailingVarArg
+            - TrailingVarArg
         about: deploys the selected container on nodes
-        usage: r2dock deploy [FLAGS] [OPTIONS] --image <image> --command <command>
+        usage: r2dock deploy [FLAGS] [OPTIONS] [--nodes "<nodes>"] --image <image> [--command <command>]
         args:
             - image:
                 short: i
