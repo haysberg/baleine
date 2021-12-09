@@ -110,18 +110,7 @@ pub fn container_deployed(host: &str) -> bool {
 }
 
 pub fn list_of_nodes(args: &clap::ArgMatches) -> String {
-    if match env::var("NODES") {
-        Ok(value) => {
-            if value != "" {
-                true
-            } else {
-                false
-            }
-        }
-        Err(_) => false,
-    } {
-        return env::var("NODES").unwrap();
-    } else if args.is_present("nodes") {
+    if args.is_present("nodes") {
         //Setting up the nodes variable provided by the user
         let nodes: String = args.value_of("nodes").unwrap().to_string();
 
@@ -138,7 +127,18 @@ pub fn list_of_nodes(args: &clap::ArgMatches) -> String {
         nodes.pop();
 
         return nodes;
-    } else {
+    } else if match env::var("NODES") {
+        Ok(value) => {
+            if value != "" {
+                true
+            } else {
+                false
+            }
+        }
+        Err(_) => false,
+    } {
+        return env::var("NODES").unwrap();
+    }  else {
         println!(
             "$NODES is not set, and you didn't provide a list of nodes. Please use the -n option."
         );

@@ -11,7 +11,7 @@ cargo build --release
 
 # How to setup a slave node
 ```
-sudo sh -c "$(wget https://raw.github.com/haysberg/r2dock/master/setup_files/setup_node.sh -O -)"
+sudo sh -c "$(wget https://raw.githubusercontent.com/haysberg/r2dock/main/setup_files/setup_node.sh -O -)"
 ```
 # Examples
 ## Deploy a container on a node
