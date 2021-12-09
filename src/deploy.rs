@@ -69,24 +69,26 @@ pub fn entry(args: &clap::ArgMatches) {
 
     let mut nodes : Vec<_> = nodes.split(" ").collect();
 
-    /**
+    /*
      * We deploy the first node before all the others, to ensure that the docker image
      * will be pulled through the proxy for the rest of the nodes
     */
     deploy(args, nodes.swap_remove(0));
 
-    //We then create a thread for each node, running the deploy command through SSH
-    match crossbeam::scope(|scope| {
-        for node in nodes {
-            scope.spawn(move |_| {
-                deploy(args, &node);
-            });
-        }
-    }) {
-        //We display a message depending of the outcome of the commands
-        Ok(_) => println!("Deployment complete !"),
-        Err(_) => println!("ERROR DURING DEPLOYMENT"),
-    };
+    if(!nodes.is_empty()){
+        //We then create a thread for each node, running the deploy command through SSH
+        match crossbeam::scope(|scope| {
+            for node in nodes {
+                scope.spawn(move |_| {
+                    deploy(args, &node);
+                });
+            }
+        }) {
+            //We display a message depending of the outcome of the commands
+            Ok(_) => println!("Deployment complete !"),
+            Err(_) => println!("ERROR DURING DEPLOYMENT"),
+        };
+    }
 
     stty_sane();
 }
