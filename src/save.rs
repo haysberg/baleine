@@ -7,13 +7,13 @@ extern crate dotenv;
  * This function takes a container running on a node and saves it to the
  * remote registry configured in config.toml
  */
-pub fn save (args: &clap::ArgMatches, node: &str){    
+pub fn save (name: &String, node: &str){    
     //We create the string for the command that we are going to execute remotely.
     //Here, we create a new image from the running container on the node, and push it to the
     //remote registry.
     let cmd = format!("docker commit container {repository}/{image_name} && docker push {repository}/{image_name}",
     repository = env_var("REGISTRY_URL"),
-    image_name = args.value_of("name").unwrap());
+    image_name = name);
 
     //We run the docker commit container command on the node. If the ssh_command() function doesn't work
     //We display an error message
@@ -27,18 +27,12 @@ pub fn save (args: &clap::ArgMatches, node: &str){
  * The entry() function works as an entrypoint that does a bit of parsing
  * as well as other checks depending on the function it calls later
  */
-pub fn entry(args: &clap::ArgMatches){
-    //Parsing of the arguments so that they are in the scope of the function and not in main() anymore
-    let args = args.subcommand_matches("save").unwrap();
-
-    //We parse the list of nodes given by the user
-    let nodes_arg : String = args.values_of("node").unwrap().collect();
-
+pub fn entry(name: &String, node: &String){
     //We then run rhubarbe nodes with the nodes.
     //This is a prerequisite to save the nodes
     let output = Command::new("rhubarbe")
     .arg("nodes")
-    .arg(nodes_arg)
+    .arg(node)
     .output()
     .unwrap();
 
@@ -51,6 +45,6 @@ pub fn entry(args: &clap::ArgMatches){
 
     //for each of the nodes, we run the save() function
     for node in nodes {
-	    save(args, node);
+	    save(name, node);
     }
 }

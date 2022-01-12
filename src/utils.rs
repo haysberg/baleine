@@ -37,7 +37,7 @@ pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
  * By doing this we can be sure that the server receiving the container
  * is configured correctly.
  */
-pub fn bootstrap(image: &str, nodes: &String) {
+pub fn bootstrap(image: &String, nodes: &String) {
     //Run the imaging through rhubarbe
     let stdout = Command::new("/usr/local/bin/rhubarbe-load")
         .arg("-i")
@@ -109,90 +109,75 @@ pub fn container_deployed(host: &str) -> bool {
     return !stdout.contains("1\n");
 }
 
-pub fn list_of_nodes(args: &clap::ArgMatches) -> String {
-    if args.is_present("nodes") {
-        //Setting up the nodes variable provided by the user
-        let nodes: String = args.value_of("nodes").unwrap().to_string();
-
-        //We run the "rhubarbe nodes" command to get a list of nodes
-        //Basically we don't do the automatic parsing here.
-        let cmd = Command::new("/usr/local/bin/rhubarbe-nodes")
-            .args(nodes.split(" "))
-            .output()
-            .expect("Problem while running the nodes command");
-
-        //We then take the list of nodes provided by rhubarbe, and trim the \n at the end
-        let mut nodes = String::from_utf8(cmd.stdout).unwrap();
-        println!("{}", nodes);
-        nodes.pop();
-
-        return nodes;
-    } else if match env::var("NODES") {
-        Ok(value) => {
-            if value != "" {
-                true
-            } else {
-                false
-            }
+pub fn list_of_nodes(nodes: &Option<String>) -> String {
+    return match nodes {
+        Some(nodes) => {    
+            //We run the "rhubarbe nodes" command to get a list of nodes
+            //Basically we don't do the automatic parsing here.
+            let cmd = Command::new("/usr/local/bin/rhubarbe-nodes")
+                .args(nodes.split(" "))
+                .output()
+                .expect("Problem while running the nodes command");
+    
+            //We then take the list of nodes provided by rhubarbe, and trim the \n at the end
+            let mut nodes = String::from_utf8(cmd.stdout).unwrap();
+            println!("{}", nodes);
+            nodes.pop();
+    
+            nodes
         }
-        Err(_) => false,
-    } {
-        return env::var("NODES").unwrap();
-    }  else {
-        println!(
-            "$NODES is not set, and you didn't provide a list of nodes. Please use the -n option."
-        );
-        panic!("NODES UNKNOWN");
+        None => {
+            match env::var("NODES") {
+                Ok(value) => {
+                    if value != "" { value }
+                    else { panic!("$NODES is not set, and you didn't provide a list of nodes. Please use the -n option.") }
+                }
+                Err(_) => panic!("$NODES is not set, and you didn't provide a list of nodes. Please use the -n option.")
+            } 
+        }
     }
 }
 
-pub fn parse_options_cmd(args: &clap::ArgMatches) -> (String, String) {
-    let mut command: String = "".to_string();
-    let mut options: String = match args.value_of("options") {
-        Some(_) => args.values_of("options").unwrap().collect(),
-        //If there is no options provided we just return an empty string
-        None => ("").to_string(),
-    };
+pub fn parse_options_cmd(command: &Option<String>, options: &Option<String>) -> (String, String) {
+    // let mut command: String = "".to_string();
+    // let mut options: String = match args.value_of("options") {
+    //     Some(_) => args.values_of("options").unwrap().collect(),
+    //     //If there is no options provided we just return an empty string
+    //     None => ("").to_string(),
+    // };
 
-    if args.is_present("options") {
-        //We parse the Docker options that the user might have supplied
+    match options {
+        Some(options) => {
+            //We parse the Docker options that the user might have supplied
 
-        //We start parsing the "command" argument.
-        //Due to some limitations in the clap.rs library, the command argument is part of the "options" argument if they are both used.
-        if options.contains("--command") {
-            command = options.split("--command").last().unwrap().to_string();
+            //We start parsing the "command" argument.
+            //Due to some limitations in the clap.rs library, the command argument is part of the "options" argument if they are both used.
+            let mut cmd = "".to_string();
+            if options.contains("--command") {
+                cmd = options.split("--command").last().unwrap().to_string();
+            }
+
+            let re = Regex::new(r"\--command.*").unwrap();
+            let mut opt = re.replace(&options, "").to_string();
+
+            //We add a space before each options passed on to Docker.
+            //Without doing this they are glued to each other, causing the deployment to fail.
+            opt = str::replace(&opt, "-", " -");
+
+            cmd = str::replace(&cmd, "-", " -").replace("- -", "--");
+
+            (cmd, opt.to_string())
         }
-
-        let re = Regex::new(r"\--command.*").unwrap();
-        options = re.replace(&options, "").to_string();
-
-        //We add a space before each options passed on to Docker.
-        //Without doing this they are glued to each other, causing the deployment to fail.
-        options = str::replace(&options, "-", " -");
-
-        command = str::replace(&command, "-", " -").replace("- -", "--");
-
-        // if command == "" {
-        //     command = "sleep infinity".to_string();
-        // }
-        (command, options)
-    } else {
-        let mut command: String = match args.value_of("command") {
-            Some(_) => args.values_of("command").unwrap().collect(),
-            //If there is no options provided we just return an empty string
-            None => ("").to_string(),
-        };
-        command = str::replace(&command, "-", " -").replace("- -", "--");
-        (command, options)
+        None => {
+            (str::replace(&command.as_ref().unwrap_or(&"".to_string()), "-", " -").replace("- -", "--"), "".to_string())
+        }
     }
 }
 
 /**
- * Alows us to run a command on a specified host.
- * Please note that it doesn't use the SSH2 crate, but instead
- * the included ssh binary on the master machine.
- *
- * The output is printed in real time and is piped to the current terminal stdout.
+ * This command sanitizes the terminal.
+ * We had weird terminal issues when deploying a large number of machines before.
+ * Using this function at the end of your code should help.
  */
 pub fn stty_sane() {
     match Command::new("/usr/bin/stty").arg("sane").spawn(){

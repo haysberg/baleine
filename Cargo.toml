@@ -5,7 +5,7 @@ authors = ["Téo Haÿs <teo.hays@protonmail.com>"]
 edition = "2018"
 
 [dependencies]
-clap = {version = "*", features = ["yaml"]}
+clap = {version = "*", features = ["yaml", "derive", "unicode"]}
 dotenv = "*"
 reqwest = {version = "*", features = ["blocking", "json"]}
 json = "*"

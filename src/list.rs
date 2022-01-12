@@ -6,10 +6,10 @@ use crate::utils::env_var;
  * This function allows us to list the images available on the registry configured in config.toml.
  * We call the Docker API available on the registry image then format it to make it readable for the user.
  */ 
-pub fn list (args: &clap::ArgMatches){
+pub fn list (details: &Option<String>) {
 
     //We generate the URL used to call the API
-    let url = match args.value_of("details"){
+    let url = match details{
         Some(image_name) => format!("{protocol}{address}/v2/{image_name}/tags/list",
         protocol = env_var("REGISTRY_PROTOCOL"),
         address = env_var("REGISTRY_URL"),
@@ -30,7 +30,7 @@ pub fn list (args: &clap::ArgMatches){
     //Then we parse the JSON result.
     let parsed = json::parse(&result);
     
-    match args.value_of("details"){
+    match details {
         Some(image_name) => println!("List of tags for the {} image :", image_name),
         None => println!("List of Images on {protocol}{address}", protocol = env_var("REGISTRY_PROTOCOL"), address = env_var("REGISTRY_URL")) 
     }
@@ -51,6 +51,6 @@ pub fn list (args: &clap::ArgMatches){
  * Entry function. Doesn't do anything right now.
  * Was implemented for the sake of consistency
  */
-pub fn entry (args: &clap::ArgMatches){
-    list(&args);
+pub fn entry (details: &Option<String>) {
+    list(details);
 }

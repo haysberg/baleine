@@ -28,12 +28,12 @@ pub fn destroy_if_container(node : &str){
  * Entry point for the destroy feature.
  * Does parsing and asks for user input for confirmation
  */
-pub fn entry(args: &clap::ArgMatches){
+pub fn entry(yes: &bool, nodes: &Option<String>){
 
     //We deal with the "yes" flag, which can be triggered with -y or --yes (cf args.yaml)
     //If the user hasn't put the flag, we ask him if he really wants to delete the containers
     let mut choice = String::new();
-    if !args.subcommand_matches("destroy").unwrap().is_present("yes"){
+    if !yes{
         print!("Are you sure you want to destroy the containers ? [y/N] ");
         std::io::stdout().flush().unwrap();
         std::io::stdin().read_line(&mut choice).expect("Problem when reading the line.");
@@ -43,12 +43,9 @@ pub fn entry(args: &clap::ArgMatches){
     }
 
     //If the user is okay with it, we proceed with the deletion
-    if choice.trim() == "y" {
-
-        let args = args.subcommand_matches("destroy").unwrap();
-        
+    if choice.trim() == "y" {        
         //Setting up the nodes variable
-        let nodes = crate::utils::list_of_nodes(&args);
+        let nodes = crate::utils::list_of_nodes(&nodes);
 
         println!("Mapping : {}", "docker stop container && docker container prune -f".to_string());
         
