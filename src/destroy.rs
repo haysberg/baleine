@@ -2,9 +2,11 @@ use std::io::prelude::*;
 use crate::utils::ssh_command;
 use crate::utils::stty_sane;
 
-/**
- * This function stops and removes the container currently running on a node even if there is none.
- */
+/// This function stops and removes the container currently running on a node even if there is none.
+///
+/// # Arguments
+///
+/// * `node` - The node you wish to remove the Docker container currently running on
 pub fn destroy(node : &str){
     match ssh_command(node.to_string(), "docker stop container && docker container prune -f".to_string()){
         Ok(_) => (),
@@ -12,9 +14,11 @@ pub fn destroy(node : &str){
     }
 }
 
-/**
- * This function stops and removes the container currently running on a node IF THERE IS ONE
- */
+/// This function stops and removes the container currently running on a node if there is one.
+///
+/// # Arguments
+///
+/// * `node` - The node you wish to remove the Docker container currently running on
 pub fn destroy_if_container(node : &str){
     if crate::utils::container_deployed(node){
         match ssh_command(node.to_string(), "docker stop container && docker container prune -f".to_string()){
@@ -24,11 +28,14 @@ pub fn destroy_if_container(node : &str){
     }
 }
 
-/**
- * Entry point for the destroy feature.
- * Does parsing and asks for user input for confirmation
- */
-pub fn entry(yes: &bool, nodes: &Option<String>){
+/// Entry point for the destroy feature. 
+/// Does parsing and asks for user input for confirmation
+///
+/// # Arguments
+///
+/// * `nodes` - The list of nodes you wish to remove the Docker containers currently running on
+/// * `yes` - Does not ask for user input to delete the container
+pub fn entry(yes: &bool, nodes: &Option<Vec<String>>){
 
     //We deal with the "yes" flag, which can be triggered with -y or --yes (cf args.yaml)
     //If the user hasn't put the flag, we ask him if he really wants to delete the containers
@@ -45,7 +52,7 @@ pub fn entry(yes: &bool, nodes: &Option<String>){
     //If the user is okay with it, we proceed with the deletion
     if choice.trim() == "y" {        
         //Setting up the nodes variable
-        let nodes = crate::utils::list_of_nodes(&nodes);
+        let nodes = crate::utils::list_of_nodes(nodes);
 
         println!("Mapping : {}", "docker stop container && docker container prune -f".to_string());
         

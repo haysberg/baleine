@@ -25,7 +25,6 @@ fn main() {
 
     //We get the arguments provided by the user, and match them with the ones listed in args.yaml
     let args = EntryArgs::parse();  
-    println!("{:?}", args);
 
     //Depending on what subcommand the user has put in the CLI, we call the related function.
     match &args.action {

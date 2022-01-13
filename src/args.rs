@@ -33,8 +33,9 @@ pub enum Action {
         options: Option<Vec<String>>,
 
         #[clap(help = "nodes you want to deploy the container on, using the rhubarbe format")]
+        #[clap(setting(ArgSettings::MultipleValues))]
         #[clap(short, long)]
-        nodes: Option<String>,
+        nodes: Option<Vec<String>>,
 
         #[clap(help = "allows you to choose what ndz image to install on a node before deploying a container")]
         #[clap(long)]
@@ -53,8 +54,9 @@ pub enum Action {
         yes: bool,
 
         #[clap(help = "nodes you want to destroy in the rhubarbe format")]
+        #[clap(setting(ArgSettings::MultipleValues))]
         #[clap(short, long)]
-        nodes: Option<String>,
+        nodes: Option<Vec<String>>,
     },
 
     #[clap(about = "lists the CUSTOM images to deploy. Images on Dockerhub are NOT listed")]

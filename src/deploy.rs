@@ -3,13 +3,20 @@ use crate::utils::ssh_command;
 use crate::utils::stty_sane;
 use crossbeam;
 
-extern crate dotenv;
-extern crate json;
-
-/**
- * This function is used to deploy a container on a node
- */
-pub fn deploy(image: &String, options: &Option<Vec<String>>, command: &Option<Vec<String>>, node: &str) {
+/// This function deploys a Docker container on a node given in input.
+///
+/// # Arguments
+///
+/// * `image` - Reference to a String. Name of the Docker image you are deploying.
+/// * `options` - A list of string containing the different options given by the user. This is an Option object, so if no option has been given, it is going to be a None object.
+/// * `command` - A list of string containing the command and flags given by the user. This is an Option object, so if no command has been given, it is going to be a None object.
+pub fn deploy(
+    image: &String,
+    options: &Option<Vec<String>>,
+    command: &Option<Vec<String>>,
+    node: &str,
+) {
+    // We change the &Option<Vec<String>> object into a String using this method.
     let (command, options) = parse_options_cmd(command, options);
 
     //We then create the command before sending it to the ssh_command() function
@@ -32,11 +39,25 @@ pub fn deploy(image: &String, options: &Option<Vec<String>>, command: &Option<Ve
     }
 }
 
-/**
- * This function acts as an entry point for the deploy function. It does some parsing
- * And then creates threads to deploy the containers
- */
-pub fn entry(image: &String, options: &Option<Vec<String>>, nodes: &Option<String>, bootstrap: &Option<String>, command: &Option<Vec<String>>) {
+/// This is the entry function for the Deploy function.
+/// This function is used to do all the necessary steps before we send the SSH command to deploy the Docker container.
+///
+/// # Arguments
+///
+/// * `image` - Reference to a String. Name of the Docker image you are deploying.
+/// * `options` - A list of string containing the different options given by the user. This is an Option object, so if no option has been given, it is going to be a None object.
+/// * `command` - A list of string containing the command and flags given by the user. This is an Option object, so if no command has been given, it is going to be a None object.
+/// * `bootstrap` - The name of the disk image we will deploy before deploying the Docker container. Option object.
+/// * `command` - The command that we will pass to the Docker container, overriding the possible entrypoint. Optional Vector of String, that might contain the name of the command and all the arguments given to it.
+/// For example : ["ls", "--all", "-t"]
+pub fn entry(
+    image: &String,
+    options: &Option<Vec<String>>,
+    nodes: &Option<Vec<String>>,
+    bootstrap: &Option<String>,
+    command: &Option<Vec<String>>,
+) {
+    //We call this function so that rhubarbe-nodes can parse our list of nodes provided by the user.
     let nodes = crate::utils::list_of_nodes(nodes);
 
     //We deploy the specified image if the --bootstrap option is used
@@ -45,7 +66,7 @@ pub fn entry(image: &String, options: &Option<Vec<String>>, nodes: &Option<Strin
             crate::utils::bootstrap(ndz, &nodes);
             crate::utils::rwait();
         }
-        None => ()
+        None => (),
     }
 
     //We destroy the containers running before on the host
@@ -60,15 +81,23 @@ pub fn entry(image: &String, options: &Option<Vec<String>>, nodes: &Option<Strin
         Err(_) => panic!("We could not destroy the running containers for an unknown reason."),
     };
 
-    let cmd = format!("docker run --name container -v /home/container/container_fs:/var --privileged --cap-add=ALL {options} {image} {command} && docker container ls -a", options = parse_options_cmd(command, options).1, image = image, command = parse_options_cmd(command, options).0);
+    //We format the SSH command that we will send to slave node.
+    let cmd = format!("docker run --name container -v /home/container/container_fs:/var --privileged --cap-add=ALL {options} {image} {command} && docker container ls -a",
+    options = parse_options_cmd(command, options).1,
+    image = image,
+    command = parse_options_cmd(command, options).0);
+
+    //Priting it just for debugging purposes
     println!("Mapping : {}", cmd);
 
-    let mut nodes : Vec<_> = nodes.split(" ").collect();
+    //We split our string from rhubarbe-nodes ("fit 01 fit02 fit03") into an array that we can iterate on (["fit01", "fit02", "fit03"])
+    let mut nodes: Vec<_> = nodes.split(" ").collect();
 
     /*
      * We deploy the first node before all the others, to ensure that the docker image
-     * will be pulled through the proxy for the rest of the nodes
-    */
+     * will be pulled through the proxy for the rest of the nodes.
+     * We use swap_remove as it always has a O(1) complexity.
+     */
     deploy(image, options, command, nodes.swap_remove(0));
 
     if !nodes.is_empty() {
@@ -86,5 +115,6 @@ pub fn entry(image: &String, options: &Option<Vec<String>>, nodes: &Option<Strin
         };
     }
 
+    //Cleaning up the terminal output in case the terminal is botched.
     stty_sane();
 }
