@@ -1,9 +1,9 @@
-use clap::{Parser, Subcommand, AppSettings, ArgSettings};
+use clap::{Parser, Subcommand, AppSettings, ArgSettings, crate_version};
 
 #[derive(Parser, Debug)]
 #[clap(name = "r2dock")]
 #[clap(author = "Téo Haÿs <teo.hays@inria.fr>")]
-#[clap(version = "0.3")]
+#[clap(version = crate_version!())]
 #[clap(about = "Deploys Docker containers using Rhubarbe. \nPlease create issues and read the wiki here : \nhttps://github.com/haysberg/r2dock")]
 #[clap(setting(AppSettings::SubcommandRequiredElseHelp))]
 #[clap(setting(AppSettings::DontCollapseArgsInUsage))]
@@ -37,7 +37,7 @@ pub enum Action {
         nodes: Option<Vec<String>>,
 
         #[clap(help = "allows you to choose what ndz image to install on a node before deploying a container")]
-        #[clap(long, value_name = "NDZ_IMAGE")]
+        #[clap(long, value_name = "NDZ_IMAGE", default_missing_value="r2dock")]
         bootstrap: Option<String>,
 
         #[clap(help = "Use this option to choose what command to pass to the container. ALWAYS USE LAST.")]
