@@ -1,12 +1,12 @@
 [package]
 name = "r2dock"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Téo Haÿs"]
 edition = "2018"
 
 [dependencies]
 # clap is used for argument parsing
-clap = {version = "*", features = ["derive", "unicode"]}
+clap = {version = "*", features = ["derive", "unicode", "cargo"]}
 # dotenv is used to load parameters from files or environment variables
 dotenv = "*"
 # reqwest is used to call the Docker Registry API to get a list of images
