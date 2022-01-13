@@ -29,7 +29,7 @@ fn main() {
 
     //Depending on what subcommand the user has put in the CLI, we call the related function.
     match &args.action {
-        Action::Deploy { image, options, nodes, bootstrap, ndz, command } => deploy::entry(image, options, nodes, bootstrap, ndz, command),
+        Action::Deploy { image, options, nodes, bootstrap, command } => deploy::entry(image, options, nodes, bootstrap, command),
         Action::Destroy { yes, nodes } => destroy::entry(yes, nodes),
         Action::List { details } => list::entry(details),
         Action::Save { name, node } => save::entry(name, node)

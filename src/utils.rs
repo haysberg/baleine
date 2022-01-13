@@ -1,4 +1,3 @@
-use regex::Regex;
 use std::env;
 use std::io::{BufRead, BufReader, Error, ErrorKind};
 use std::process::{Command, Stdio};
@@ -138,40 +137,11 @@ pub fn list_of_nodes(nodes: &Option<String>) -> String {
     }
 }
 
-pub fn parse_options_cmd(command: &Option<String>, options: &Option<String>) -> (String, String) {
-    // let mut command: String = "".to_string();
-    // let mut options: String = match args.value_of("options") {
-    //     Some(_) => args.values_of("options").unwrap().collect(),
-    //     //If there is no options provided we just return an empty string
-    //     None => ("").to_string(),
-    // };
-
-    match options {
-        Some(options) => {
-            //We parse the Docker options that the user might have supplied
-
-            //We start parsing the "command" argument.
-            //Due to some limitations in the clap.rs library, the command argument is part of the "options" argument if they are both used.
-            let mut cmd = "".to_string();
-            if options.contains("--command") {
-                cmd = options.split("--command").last().unwrap().to_string();
-            }
-
-            let re = Regex::new(r"\--command.*").unwrap();
-            let mut opt = re.replace(&options, "").to_string();
-
-            //We add a space before each options passed on to Docker.
-            //Without doing this they are glued to each other, causing the deployment to fail.
-            opt = str::replace(&opt, "-", " -");
-
-            cmd = str::replace(&cmd, "-", " -").replace("- -", "--");
-
-            (cmd, opt.to_string())
-        }
-        None => {
-            (str::replace(&command.as_ref().unwrap_or(&"".to_string()), "-", " -").replace("- -", "--"), "".to_string())
-        }
-    }
+pub fn parse_options_cmd(command: &Option<Vec<String>>, options: &Option<Vec<String>>) -> (String, String) {
+    return (
+        command.as_ref().unwrap_or(vec!["".to_string()].as_ref()).iter().map(|x| format!("{} ", x)).collect(),
+        options.as_ref().unwrap_or(vec!["".to_string()].as_ref()).iter().map(|x| format!("{} ", x)).collect()
+    );
 }
 
 /**
@@ -180,13 +150,7 @@ pub fn parse_options_cmd(command: &Option<String>, options: &Option<String>) -> 
  * Using this function at the end of your code should help.
  */
 pub fn stty_sane() {
-    match Command::new("/usr/bin/stty").arg("sane").spawn(){
-     Ok(_) => (),
-     Err(_) => ()
-    }
+    Command::new("/usr/bin/stty").arg("sane").output().expect("");
 
-    match Command::new("/usr/bin/echo").arg("").spawn(){
-        Ok(_) => (),
-        Err(_) => println!("Could not clear the terminal.")   
-    }
+    Command::new("/usr/bin/echo").arg("sane").output().expect("");
 }

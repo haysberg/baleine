@@ -9,14 +9,15 @@ extern crate json;
 /**
  * This function is used to deploy a container on a node
  */
-pub fn deploy(image: &String, options: &Option<String>, command: &Option<String>, node: &str) {
+pub fn deploy(image: &String, options: &Option<Vec<String>>, command: &Option<Vec<String>>, node: &str) {
     let (command, options) = parse_options_cmd(command, options);
 
     //We then create the command before sending it to the ssh_command() function
     let cmd = format!("docker run --name container -v /home/container/container_fs:/var --privileged --cap-add=ALL {options} {image} {command} && docker container ls -a",
-    options = options,
-    image = image,
-    command = command);
+        options = options,
+        image = image,
+        command = command
+    );
 
     //We run the SSH command
     match ssh_command(node.to_string(), cmd) {
@@ -35,17 +36,11 @@ pub fn deploy(image: &String, options: &Option<String>, command: &Option<String>
  * This function acts as an entry point for the deploy function. It does some parsing
  * And then creates threads to deploy the containers
  */
-pub fn entry(image: &String, options: &Option<String>, nodes: &Option<String>, bootstrap: &bool, ndz: &Option<String>, command: &Option<String>) {
+pub fn entry(image: &String, options: &Option<Vec<String>>, nodes: &Option<String>, bootstrap: &Option<String>, command: &Option<Vec<String>>) {
     let nodes = crate::utils::list_of_nodes(nodes);
 
-    //We deploy the latest r2dock compatible image if the bootstrap option is used
-    if *bootstrap {
-        crate::utils::bootstrap(&"r2dock".to_string(), &nodes);
-        crate::utils::rwait();
-    }
-
-    //We deploy the specified image if the --ndz option is used
-    match ndz {
+    //We deploy the specified image if the --bootstrap option is used
+    match bootstrap {
         Some(ndz) => {
             crate::utils::bootstrap(ndz, &nodes);
             crate::utils::rwait();

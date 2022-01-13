@@ -1,11 +1,11 @@
-use clap::{Parser, Subcommand, AppSettings};
+use clap::{Parser, Subcommand, AppSettings, ArgSettings};
 
 #[derive(Parser, Debug)]
 #[clap(name = "r2dock")]
 #[clap(author = "Téo Haÿs <teo.hays@inria.fr>")]
 #[clap(version = "0.3")]
 #[clap(about = "Deploys Docker containers using Rhubarbe. \nPlease create issues and read the wiki here : \nhttps://github.com/haysberg/r2dock")]
-//#[clap(usage = "r2dock deploy [FLAGS] [OPTIONS] [--nodes \"<nodes>\"] --image <image> [--command <command>]")]
+#[clap(override_usage = "r2dock deploy [FLAGS] [OPTIONS] [--nodes \"<nodes>\"] --image <image> [--command <command>]")]
 #[clap(setting(AppSettings::SubcommandRequiredElseHelp))]
 #[clap(setting(AppSettings::DontCollapseArgsInUsage))]
 #[clap(setting(AppSettings::UseLongFormatForHelpSubcommand))]
@@ -18,6 +18,7 @@ pub struct EntryArgs {
 #[derive(Subcommand, Debug)]
 #[clap(setting(AppSettings::TrailingVarArg))]
 #[clap(setting(AppSettings::DontDelimitTrailingValues))]
+#[clap(setting(AppSettings::AllowHyphenValues))]
 pub enum Action {
     #[clap(about = "deploys the selected container on nodes")]
     #[clap(setting(AppSettings::AllowHyphenValues))]
@@ -27,24 +28,22 @@ pub enum Action {
         image: String,
 
         #[clap(help = "the options string that you want to send to the container")]
+        #[clap(setting(ArgSettings::MultipleValues))]
         #[clap(short, long)]
-        options: Option<String>,
+        options: Option<Vec<String>>,
 
         #[clap(help = "nodes you want to deploy the container on, using the rhubarbe format")]
         #[clap(short, long)]
         nodes: Option<String>,
 
-        #[clap(help = "deploys the latest r2dock compatible image on the machine before deploying the container")]
+        #[clap(help = "allows you to choose what ndz image to install on a node before deploying a container")]
         #[clap(long)]
-        bootstrap: bool,
-
-        #[clap(help = "choose a .ndz image to be deployed before the container")]
-        #[clap(long)]
-        ndz: Option<String>,
+        bootstrap: Option<String>,
 
         #[clap(help = "Use this option to choose what command to pass to the container. ALWAYS USE LAST.")]
+        #[clap(setting(ArgSettings::MultipleValues))]
         #[clap(short, long)]
-        command: Option<String>
+        command: Option<Vec<String>>
     },
 
     #[clap(about = "destroys containers PERMANENTLY")]

@@ -5,16 +5,8 @@ authors = ["Téo Haÿs <teo.hays@protonmail.com>"]
 edition = "2018"
 
 [dependencies]
-clap = {version = "*", features = ["yaml", "derive", "unicode"]}
+clap = {version = "*", features = ["derive", "unicode"]}
 dotenv = "*"
 reqwest = {version = "*", features = ["blocking", "json"]}
 json = "*"
-num_cpus = "*"
 crossbeam = "*"
-serde = "*"
-serde_derive = "*"
-serde_json = "*"
-tungstenite = { version = "*", features = ["native-tls"] }
-url = "*"
-openssl = { version = "0.10"}
-regex = "*"
