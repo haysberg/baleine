@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand, AppSettings, ArgSettings, crate_version};
 
 #[derive(Parser, Debug)]
-#[clap(name = "r2dock")]
+#[clap(name = "baleine")]
 #[clap(author = "Téo Haÿs <teo.hays@inria.fr>")]
 #[clap(version = crate_version!())]
 #[clap(about = "Deploys Docker containers using Rhubarbe.
