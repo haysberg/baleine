@@ -4,7 +4,9 @@ use clap::{Parser, Subcommand, AppSettings, ArgSettings, crate_version};
 #[clap(name = "r2dock")]
 #[clap(author = "Téo Haÿs <teo.hays@inria.fr>")]
 #[clap(version = crate_version!())]
-#[clap(about = "Deploys Docker containers using Rhubarbe. \nPlease create issues and read the wiki here : \nhttps://github.com/haysberg/r2dock")]
+#[clap(about = "Deploys Docker containers using Rhubarbe.
+Report a bug : https://github.com/haysberg/r2dock/issues
+Wiki : https://github.com/haysberg/r2dock/wiki")]
 #[clap(setting(AppSettings::SubcommandRequiredElseHelp))]
 #[clap(setting(AppSettings::DontCollapseArgsInUsage))]
 #[clap(setting(AppSettings::UseLongFormatForHelpSubcommand))]
