@@ -26,4 +26,4 @@ jobs:
           prerelease: false
           automatic_release_tag: "latest"
           files: |
-            r2dock
+            baleine

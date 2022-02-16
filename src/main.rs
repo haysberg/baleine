@@ -17,7 +17,7 @@ use clap::{Parser};
 fn main() {
     //Loading the configuration file.
     //Keep in mind that these variables can be overwritten as they are environment variables.
-    let p = Path::new("/etc/r2dock/r2dock.conf");
+    let p = Path::new("/etc/baleine/baleine.conf");
     let relative = Path::new("./baleine.example.conf");
     match dotenv::from_path(p){
         Ok(_) => (),

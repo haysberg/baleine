@@ -26,7 +26,7 @@ insecure="{
 }"
 echo $insecure | tee -a /etc/docker/daemon.json > /dev/null
 
-wget https://raw.githubusercontent.com/haysberg/r2dock/main/setup_files/r2
+wget https://raw.githubusercontent.com/haysberg/baleine/main/setup_files/r2
 mv ./r2 /bin/r2
 chmod +x /bin/r2
 
