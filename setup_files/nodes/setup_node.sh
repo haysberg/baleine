@@ -35,4 +35,4 @@ echo "/bin/rdsh" >> /etc/shells
 passwd -d container
 chsh --shell /bin/rdsh container
 
-echo "192.168.3.100	faraday" >> /etc/hosts
+echo "192.168.2.100	faraday" >> /etc/hosts
