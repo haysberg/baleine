@@ -17,10 +17,14 @@ use clap::{Parser};
 fn main() {
     //Loading the configuration file.
     //Keep in mind that these variables can be overwritten as they are environment variables.
-    let p = Path::new("/etc/r2dock/r2dock.conf");
+    let p = Path::new("/etc/baleine/baleine.conf");
+    let relative = Path::new("./baleine.example.conf");
     match dotenv::from_path(p){
         Ok(_) => (),
-        Err(e) => panic!("Couldn't access config file at {0}, caused error : {1}", p.display(), e)
+        Err(_) => match dotenv::from_path(relative){
+            Ok(_) => (),
+            Err(e) => panic!("Couldn't access config file at {0}, caused error : {1}", p.display(), e)
+        }
     }
 
     //We get the arguments provided by the user, and match them with the ones listed in args.yaml

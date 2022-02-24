@@ -1,0 +1,13 @@
+#This file allows us to deploy a Docker registry on a chosen server
+#Using it we can also deploy a graphical interface 
+
+version: '3.3'
+
+services:
+  docker-repo:
+    pull_policy: always
+    image: registry:latest
+    container_name: registry
+    restart: always
+    ports:
+      - 80:5000 #To listen on port 443, change it to 443:5000

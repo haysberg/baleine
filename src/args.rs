@@ -1,12 +1,12 @@
 use clap::{Parser, Subcommand, AppSettings, ArgSettings, crate_version};
 
 #[derive(Parser, Debug)]
-#[clap(name = "r2dock")]
+#[clap(name = "baleine")]
 #[clap(author = "Téo Haÿs <teo.hays@inria.fr>")]
 #[clap(version = crate_version!())]
 #[clap(about = "Deploys Docker containers using Rhubarbe.
-Report a bug : https://github.com/haysberg/r2dock/issues
-Wiki : https://github.com/haysberg/r2dock/wiki")]
+Report a bug : https://github.com/haysberg/baleine/issues
+Wiki : https://github.com/haysberg/baleine/wiki")]
 #[clap(setting(AppSettings::SubcommandRequiredElseHelp))]
 #[clap(setting(AppSettings::DontCollapseArgsInUsage))]
 #[clap(setting(AppSettings::UseLongFormatForHelpSubcommand))]
@@ -39,7 +39,7 @@ pub enum Action {
         nodes: Option<Vec<String>>,
 
         #[clap(help = "allows you to choose what ndz image to install on a node before deploying a container")]
-        #[clap(long, value_name = "NDZ_IMAGE", default_missing_value="r2dock")]
+        #[clap(long, value_name = "NDZ_IMAGE", default_missing_value="baleine")]
         bootstrap: Option<String>,
 
         #[clap(help = "Use this option to choose what command to pass to the container. ALWAYS USE LAST.")]

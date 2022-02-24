@@ -1,45 +1,20 @@
-# r2dock
-### This software allows you to deploy Docker containers on top of the rhubarbe platform.
+# Baleine 🐋
+Orchestrate Docker containers over the R2Lab platform from a single CLI.
 
-# How to install the CLI on the master
+### How to install the CLI on the master
 ```
-git clone https://github.com/haysberg/r2dock
-cd r2dock
+git clone https://github.com/haysberg/baleine
+cd baleine
 cargo build --release
-./target/release/r2dock --help
+./target/release/baleine --help
 ```
 
-# How to setup a slave node
+### How to setup a slave node
 ```
-sudo sh -c "$(wget https://raw.githubusercontent.com/haysberg/r2dock/main/setup_files/setup_node.sh -O -)"
+sudo sh -c "$(wget https://raw.githubusercontent.com/haysberg/baleine/main/setup_files/nodes/setup_node.sh -O -)"
 ```
-# Examples
-## Deploy a container on a node
-```
-r2dock deploy --name ubuntu --nodes 1 --options "-t -d"
-```
+### Need help ?
 
-## Save a running container on the configured Docker registry
-```
-r2dock save --name custom_image1 --node 1
-```
+Please refer to the [docs](https://github.com/haysberg/baleine/wiki) to get an exhaustive list of example commands.
 
-## Destroy a container
-```
-r2dock destroy --nodes 1
-```
-Please note that you can bypass the confirmation to delete the container(s) by adding the --yes option :
-```
-r2dock destroy --nodes 1 --yes
-```
-
-## List the images currently available on the configured registry
-```
-r2dock list
-```
-
-## List the available tags / versions for a specific image
-```
-r2dock list --details custom_image1
-```
-## 📨 Please open an issue or send me an email in case of bugs : teo.hays@inria.fr
+📨 Please [open an issue](https://github.com/haysberg/baleine/issues/new) or send me an email in case of bugs : [teo.hays@inria.fr]((mailto:teo.hays@inria.fr))

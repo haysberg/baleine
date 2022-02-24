@@ -1,6 +1,6 @@
 [package]
-name = "r2dock"
-version = "0.3.1"
+name = "baleine"
+version = "0.3.2"
 authors = ["Téo Haÿs"]
 edition = "2018"
 
