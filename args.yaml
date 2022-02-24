@@ -1,6 +1,6 @@
-name: r2dock
+name: baleine
 author: Téo Haÿs <teo.hays@inria.fr>
-about: "Deploys Docker containers using Rhubarbe. \nPlease create issues and read the wiki here : \nhttps://github.com/haysberg/r2dock"
+about: "Deploys Docker containers using Rhubarbe. \nPlease create issues and read the wiki here : \nhttps://github.com/haysberg/baleine"
 settings :
     - ArgRequiredElseHelp
     - InferSubcommands
@@ -12,7 +12,7 @@ subcommands:
             - AllowLeadingHyphen
             - TrailingVarArg
         about: deploys the selected container on nodes
-        usage: r2dock deploy [FLAGS] [OPTIONS] [--nodes "<nodes>"] --image <image> [--command <command>]
+        usage: baleine deploy [FLAGS] [OPTIONS] [--nodes "<nodes>"] --image <image> [--command <command>]
         args:
             - image:
                 short: i
@@ -38,7 +38,7 @@ subcommands:
                 help: bypass the check to see if the nodes are running the required Docker-ready image
             - bootstrap:
                 long: bootstrap
-                help: deploys the latest r2dock compatible image on the machine before deploying the container
+                help: deploys the latest baleine compatible image on the machine before deploying the container
                 short: b
                 conflicts_with: ndz
             - ndz:

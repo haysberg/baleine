@@ -11,7 +11,7 @@ cargo build --release
 
 ### How to setup a slave node
 ```
-sudo sh -c "$(wget https://raw.githubusercontent.com/haysberg/baleine/main/setup_files/setup_node.sh -O -)"
+sudo sh -c "$(wget https://raw.githubusercontent.com/haysberg/baleine/main/setup_files/nodes/setup_node.sh -O -)"
 ```
 ### Need help ?
 

@@ -26,13 +26,13 @@ insecure="{
 }"
 echo $insecure | tee -a /etc/docker/daemon.json > /dev/null
 
-wget https://raw.githubusercontent.com/haysberg/r2dock/main/setup_files/r2
-mv ./r2 /bin/r2
-chmod +x /bin/r2
+wget https://raw.githubusercontent.com/haysberg/baleine/main/setup_files/rdsh
+mv ./rdsh /bin/rdsh
+chmod +x /bin/rdsh
 
-echo "/bin/r2" >> /etc/shells
+echo "/bin/rdsh" >> /etc/shells
 
 passwd -d container
-chsh --shell /bin/r2 container
+chsh --shell /bin/rdsh container
 
-echo "192.168.3.100	faraday" >> /etc/hosts
+echo "192.168.2.100	faraday" >> /etc/hosts
