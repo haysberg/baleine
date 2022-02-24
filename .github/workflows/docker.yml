@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: r2lab-tutos
+  IMAGE_NAME: r2lab
 
 jobs:
   build-and-push-image:
