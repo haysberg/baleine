@@ -26,7 +26,7 @@ insecure="{
 }"
 echo $insecure | tee -a /etc/docker/daemon.json > /dev/null
 
-wget https://raw.githubusercontent.com/haysberg/baleine/main/setup_files/rdsh
+wget https://raw.githubusercontent.com/haysberg/baleine/main/setup_files/nodes/rdsh
 mv ./rdsh /bin/rdsh
 chmod +x /bin/rdsh
 
