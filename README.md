@@ -9,6 +9,14 @@ cargo build --release
 ./target/release/baleine --help
 ```
 
+### How to deploy a docker registry cache
+```
+wget https://raw.githubusercontent.com/haysberg/baleine/main/setup_files/gateway/docker-compose.yml
+# -d detaches the output from the terminal
+docker compose up -d
+
+```
+
 ### How to setup a slave node
 ```
 sudo sh -c "$(wget https://raw.githubusercontent.com/haysberg/baleine/main/setup_files/nodes/setup_node.sh -O -)"

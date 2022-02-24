@@ -14,7 +14,7 @@ pub fn save(name: &String, node: &str) {
     //Here, we create a new image from the running container on the node, and push it to the
     //remote registry.
     let cmd = format!("docker commit container {repository}/{image_name} && docker push {repository}/{image_name}",
-    repository = env_var("REGISTRY_URL"),
+    repository = env_var("SAVE_URL"),
     image_name = name);
 
     //We run the docker commit container command on the node. If the ssh_command() function doesn't work
