@@ -11,3 +11,5 @@ services:
     restart: always
     ports:
       - 0.0.0.0:80:5000 #To listen on port 443, change it to 443:5000
+    environment:
+      - REGISTRY_PROXY_REMOTEURL="https://hub.docker.com/"
