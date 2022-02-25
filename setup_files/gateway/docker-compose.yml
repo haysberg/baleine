@@ -7,7 +7,7 @@ services:
   docker-proxy:
     pull_policy: always
     image: registry:latest
-    container_name: registry
+    container_name: docker-proxy
     restart: always
     ports:
       - 0.0.0.0:81:5000 #To listen on port 443, change it to 443:5000
@@ -17,7 +17,7 @@ services:
   docker-repo:
     pull_policy: always
     image: registry:latest
-    container_name: registry
+    container_name: docker-repo
     restart: always
     ports:
       - 0.0.0.0:80:5000 #To listen on port 443, change it to 443:5000
