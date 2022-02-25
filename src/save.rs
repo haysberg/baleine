@@ -13,8 +13,7 @@ pub fn save(name: &String, node: &str) {
     //We create the string for the command that we are going to execute remotely.
     //Here, we create a new image from the running container on the node, and push it to the
     //remote registry.
-    let cmd = format!("docker commit container {image_name} && docker push {protocol}{repository}/{image_name}",
-    protocol = env_var("REGISTRY_PROTOCOL"),
+    let cmd = format!("docker commit container {image_name} && docker image tag {image_name} {repository}/{image_name} && docker push --all-tags {repository}/{image_name}",
     repository = env_var("SAVE_URL"),
     image_name = name);
 
