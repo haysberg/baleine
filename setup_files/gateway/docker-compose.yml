@@ -4,6 +4,16 @@
 version: '3.3'
 
 services:
+  docker-proxy:
+    pull_policy: always
+    image: registry:latest
+    container_name: registry
+    restart: always
+    ports:
+      - 0.0.0.0:81:5000 #To listen on port 443, change it to 443:5000
+    environment:
+      - REGISTRY_PROXY_REMOTEURL="https://hub.docker.com/"
+  
   docker-repo:
     pull_policy: always
     image: registry:latest
@@ -11,5 +21,3 @@ services:
     restart: always
     ports:
       - 0.0.0.0:80:5000 #To listen on port 443, change it to 443:5000
-    environment:
-      - REGISTRY_PROXY_REMOTEURL="https://hub.docker.com/"
