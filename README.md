@@ -1,5 +1,21 @@
 # Baleine 🐋
-Orchestrate Docker containers over the R2Lab platform from a single CLI.
+
+Orchestrate Docker containers over the R2Lab platform from a single CLI. This allows you to manipulate the software run on the different nodes quickly and with ease.
+Using the four subcommands of this tool, you can deploy Docker containers on top of the 37 test nodes available in R2Lab.
+
+<p align="center">
+  <img src="./img/example.png" alt="Size Limit CLI" width="868">
+</p>
+
+## What are the benefits ?
+
+- By using a local repository, we can cache the image downloaded from external sources, allowing for much faster deployment.
+- The code is fully multi-threaded, allowing for good scalability.
+- The project is completely open-source and all the libraries are contained within the binary, which makes it extremely portable.
+- Using Docker containers, we can save, deploy and destroy an instance in mere seconds.
+- Thanks to the nature of Docker containers, our experiments can be easily reproduced without having to fiddle with config files.
+
+## Usage
 
 Using the four subcommands of this tool, you can deploy Docker containers on top of the 37 test nodes available in R2Lab.
 - `deploy` to automatically deploy containers on the specified nodes with the Docker options you want
@@ -7,12 +23,7 @@ Using the four subcommands of this tool, you can deploy Docker containers on top
 - `save` to save a running container as a new image on the local R2Lab repository
 - `list` to get a list of all the images on the repository
 
-Other benefits :
-- By using a local repository, we can cache the image downloaded from external sources, allowing for much faster deployment.
-- The code is fully multi-threaded, allowing for good scalability.
-- The project is completely open-source and all the libraries are contained within the binary, which makes it extremely portable.
-- Using Docker containers, we can save, deploy and destroy an instance in mere seconds.
-- Thanks to the nature of Docker containers, our experiments can be easily reproduced without having to fiddle with config files.
+To see the full list of available options, please check [the docs](https://github.com/haysberg/baleine/wiki)
 
 ### How to install the CLI on the master
 ```

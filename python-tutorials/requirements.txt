@@ -1,0 +1,3 @@
+asynciojobs==0.14.3
+apssh
+r2lab
