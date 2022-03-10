@@ -122,4 +122,4 @@ fi
 
 Please refer to the [docs](https://github.com/haysberg/baleine/wiki) to get an exhaustive list of example commands.
 
-📨 Please [open an issue](https://github.com/haysberg/baleine/issues/new) or send me an email in case of bugs : [teo.hays@inria.fr]((mailto:teo.hays@inria.fr))
+📨 Please [open an issue](https://github.com/haysberg/baleine/issues/new) or send me an email in case of bugs : [teo.hays@inria.fr](mailto:teo.hays@inria.fr)
