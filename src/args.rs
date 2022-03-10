@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand, AppSettings, ArgSettings, crate_version};
+use clap::{Parser, Subcommand, crate_version};
 
 #[derive(Parser, Debug)]
 #[clap(name = "baleine")]
@@ -7,34 +7,31 @@ use clap::{Parser, Subcommand, AppSettings, ArgSettings, crate_version};
 #[clap(about = "Deploys Docker containers using Rhubarbe.
 Report a bug : https://github.com/haysberg/baleine/issues
 Wiki : https://github.com/haysberg/baleine/wiki")]
-#[clap(setting(AppSettings::SubcommandRequiredElseHelp))]
-#[clap(setting(AppSettings::DontCollapseArgsInUsage))]
-#[clap(setting(AppSettings::UseLongFormatForHelpSubcommand))]
-#[clap(setting(AppSettings::PropagateVersion))]
+#[clap(subcommand_required = true)]
+#[clap(dont_collapse_args_in_usage = true)]
+#[clap(propagate_version = true)]
 pub struct EntryArgs {
     #[clap(subcommand)]
     pub action: Action,
 }
 
 #[derive(Subcommand, Debug)]
-#[clap(setting(AppSettings::TrailingVarArg))]
-#[clap(setting(AppSettings::DontDelimitTrailingValues))]
-#[clap(setting(AppSettings::AllowHyphenValues))]
+#[clap(trailing_var_arg = true)]
+#[clap(dont_delimit_trailing_values = true)]
+#[clap(allow_hyphen_values = true)]
 pub enum Action {
     #[clap(about = "deploys the selected container on nodes")]
-    #[clap(setting(AppSettings::AllowHyphenValues))]
+    #[clap(allow_hyphen_values = true)]
     Deploy {
         #[clap(help = "the image to deploy, <repository>/image:tag format")]
         #[clap(required = true, short, long)]
         image: String,
 
         #[clap(help = "the options string that you want to send to the container")]
-        #[clap(setting(ArgSettings::MultipleValues))]
         #[clap(short, long)]
         options: Option<Vec<String>>,
 
         #[clap(help = "nodes you want to deploy the container on, using the rhubarbe format")]
-        #[clap(setting(ArgSettings::MultipleValues))]
         #[clap(short, long)]
         nodes: Option<Vec<String>>,
 
@@ -43,7 +40,6 @@ pub enum Action {
         bootstrap: Option<String>,
 
         #[clap(help = "Use this option to choose what command to pass to the container. ALWAYS USE LAST.")]
-        #[clap(setting(ArgSettings::MultipleValues))]
         #[clap(short, long)]
         command: Option<Vec<String>>
     },
@@ -55,7 +51,6 @@ pub enum Action {
         yes: bool,
 
         #[clap(help = "nodes you want to destroy in the rhubarbe format")]
-        #[clap(setting(ArgSettings::MultipleValues))]
         #[clap(short, long)]
         nodes: Option<Vec<String>>,
     },
