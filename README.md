@@ -65,7 +65,7 @@ Export the OS to a Rhubarbe image for latter use.
 ## Current workflow on the faraday gateway
 
 <p align="center">
-  <img src="./img/faraday.png" alt="Faraday infra" width="868">
+  <img src="./img/faraday.jpg" alt="Faraday infra" width="868">
 </p>
 
 
