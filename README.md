@@ -64,6 +64,7 @@ Export the OS to a Rhubarbe image for latter use.
 
 ## 🧰 Configuration
 
+### Gateway
 The CLI configuration can be found under `/etc/baleine/baleine.conf`. Here is the default contents :
 ```yaml
 #URL that will be called when listing available images
@@ -74,9 +75,10 @@ REGISTRY_PROTOCOL = "http://"
 DEFAULT_BOOTSTRAP_IMAGE="baleine"
 ```
 
+### Slave node
 On the slave node, `faraday` and `faraday.repo` point to the data node from the /etc/hosts file.
 ```
-# Excerpt from /etc/hosts
+# Snippet from /etc/hosts
 192.168.2.100	faraday.repo
 ```
 
@@ -93,6 +95,28 @@ We add the following lines in the config file :
 
 Please note that the repository is listening on port 80, and the proxy on port 81.
 You can get a better understanding of the configuration if you look at the [docker-compose.yml](https://github.com/haysberg/baleine/blob/develop/setup_files/gateway/docker-compose.yml) file that describes the registries configuration in detail.
+
+The default user is added to the `docker` UNIX group so that you don't need to be `root` on the machine to use Docker.
+
+Users can login directly into the container by connecting as `container@fitxx` instead of logging in as `root`.
+The user `container` has a special shell added as the default one, named `rdsh` (Remote Docker SHell). It is listed in `/etc/shells` and the actual shell is in `/bin/rdsh`. Here is the content of the shell :
+
+```bash
+#!/bin/bash
+
+if ! docker inspect container > /dev/null 2>&1; then
+    echo "No running container on the machine. It might be stopped ?"
+    exit 1
+elif [[ -z "$@" ]]; then
+    docker exec -it container /bin/bash
+else
+    case "$1" in
+	"-c") shift;;
+    esac
+    docker exec container "$@"
+fi
+```
+
 
 ## Need help ?
 
