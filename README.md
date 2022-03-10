@@ -1,5 +1,7 @@
 # Baleine 🐋
 
+[Check out the docs !](https://github.com/haysberg/baleine/wiki)
+
 Orchestrate Docker containers over the R2Lab platform from a single CLI. This allows you to manipulate the software run on the different nodes quickly and with ease.
 Using the four subcommands of this tool, you can deploy Docker containers on top of the 37 test nodes available in R2Lab.
 
@@ -25,27 +27,74 @@ Using the four subcommands of this tool, you can deploy Docker containers on top
 
 To see the full list of available options, please check [the docs](https://github.com/haysberg/baleine/wiki)
 
-### How to install the CLI on the master
-```
+## 📥 Installation
+
+Right now, we do not offer a binary that you can download and install. You will need to clone the github repository and compile the code yourself. Once you have Rust installed on your machine, you can use the provided scripts to install the binary.
+
+Use the same procedure to update Baleine.
+
+### Gateway
+```sh
 git clone https://github.com/haysberg/baleine
 cd baleine
-cargo build --release
-./target/release/baleine --help
+./setup_files/build_and_install.sh
+
+# Check if baleine is installed correctly
+which baleine
 ```
 
-### How to deploy a docker registry cache
-```
+### Docker registry & DockerHub proxy
+Please note : you can deploy it in the gateway or anywhere else as long as it is reachable by your gateway and nodes.
+
+You will need Docker and docker-compose to run the file.
+```sh
 wget https://raw.githubusercontent.com/haysberg/baleine/main/setup_files/gateway/docker-compose.yml
+
 # -d detaches the output from the terminal
 docker compose up -d
-
 ```
 
-### How to setup a slave node
-```
+### Slave node
+This script is made to run on Ubuntu-based systems. It **should** work on Debian systems as well, but it is untested so far.
+
+```sh
 sudo sh -c "$(wget https://raw.githubusercontent.com/haysberg/baleine/main/setup_files/nodes/setup_node.sh -O -)"
 ```
-### Need help ?
+Export the OS to a Rhubarbe image for latter use.
+
+## 🧰 Configuration
+
+The CLI configuration can be found under `/etc/baleine/baleine.conf`. Here is the default contents :
+```yaml
+#URL that will be called when listing available images
+REGISTRY_URL = "faraday"
+#URL that will be transmitted to the slave nodes to save images
+SAVE_URL = "faraday.repo"
+REGISTRY_PROTOCOL = "http://"
+DEFAULT_BOOTSTRAP_IMAGE="baleine"
+```
+
+On the slave node, `faraday` and `faraday.repo` point to the data node from the /etc/hosts file.
+```
+# Excerpt from /etc/hosts
+192.168.2.100	faraday.repo
+```
+
+The Docker daemon is configured through `/etc/docker/daemon.json`.
+We add the following lines in the config file :
+```json
+{
+  "insecure-registries" : ["faraday.repo"],
+  "registry-mirrors": ["http://faraday.repo:81"]
+}
+```
+`insecure-registries` is the hostname of repositories where using HTTP is authorized to push images and interact with the repo.
+`registry-mirrors` is the list of repositories configured as proxies.
+
+Please note that the repository is listening on port 80, and the proxy on port 81.
+You can get a better understanding of the configuration if you look at the [docker-compose.yml](https://github.com/haysberg/baleine/blob/develop/setup_files/gateway/docker-compose.yml) file that describes the registries configuration in detail.
+
+## Need help ?
 
 Please refer to the [docs](https://github.com/haysberg/baleine/wiki) to get an exhaustive list of example commands.
 
