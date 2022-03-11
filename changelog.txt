@@ -1,0 +1,6 @@
+0.4.1
+------
+
+- Fixed a bug where the command sent to the Docker daemon was not between double quotes, causing it to ignore all arguments after the first one. (for example : ls -al would be considered as just ls)
+
+- 
