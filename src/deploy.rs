@@ -20,7 +20,7 @@ pub fn deploy(
     let (command, options) = parse_options_cmd(command, options);
 
     //We then create the command before sending it to the ssh_command() function
-    let cmd = format!("docker run --name container -v /home/container/container_fs:/var --privileged --cap-add=ALL {options} {image} {command} && docker container ls -a",
+    let cmd = format!("docker run --name container -v /home/container/container_fs:/var --privileged --cap-add=ALL {options} {image} \"{command}\" && docker container ls -a",
         options = options,
         image = image,
         command = command
