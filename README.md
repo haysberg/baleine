@@ -6,7 +6,7 @@ Orchestrate Docker containers over the R2Lab platform from a single CLI. This al
 Using the four subcommands of this tool, you can deploy Docker containers on top of the 37 test nodes available in R2Lab.
 
 <p align="center">
-  <img src="./img/example.png" alt="Size Limit CLI" width="868">
+  <img src="./img/example.png" alt="Baleine simple demo" width="868">
 </p>
 
 ## What are the benefits ?
@@ -61,6 +61,13 @@ This script is made to run on Ubuntu-based systems. It **should** work on Debian
 sudo sh -c "$(wget https://raw.githubusercontent.com/haysberg/baleine/main/setup_files/nodes/setup_node.sh -O -)"
 ```
 Export the OS to a Rhubarbe image for latter use.
+
+## Current workflow on the faraday gateway
+
+<p align="center">
+  <img src="./img/faraday.jpg" alt="Faraday infra" width="868">
+</p>
+
 
 ## 🧰 Configuration
 
