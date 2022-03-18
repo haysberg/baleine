@@ -2,5 +2,5 @@
 ------
 
 - Fixed a bug where the command sent to the Docker daemon was not between double quotes, causing it to ignore all arguments after the first one. (for example : ls -al would be considered as just ls)
-
-- 
+- Removed problematic options in the command parser for the "deploy" subcommand : You now HAVE to put the values for the "--command" and "--options" arguments between quotes.
+- Added a "-f" short flag alias and a "--force" alias for the "--yes" option in the destroy subcommand
