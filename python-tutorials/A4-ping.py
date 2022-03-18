@@ -19,25 +19,38 @@ parser.add_argument("-s", "--slice", default=gateway_username,
                          .format(gateway_username))
 parser.add_argument("-v", "--verbose-ssh", default=False, action='store_true',
                     help="run ssh in verbose mode")
+parser.add_argument("-n", "--node", default='36', action='store_true',
+                    help="the node to run the command on")
 args = parser.parse_args()
 
 gateway_username = args.slice
 verbose_ssh = args.verbose_ssh
+node = args.node
 
 ##########
 faraday = SshNode(hostname = gateway_hostname, username = gateway_username,
                   verbose = verbose_ssh)
-
-node = '36'
 
 ##########
 # create an orchestration scheduler
 scheduler = Scheduler()
 
 ##########
+check_lease = SshJob(
+    # checking the lease is done on the gateway
+    node = faraday,
+    # this means that a failure in any of the commands
+    # will cause the scheduler to bail out immediately
+    critical = True,
+    command = Run("rhubarbe leases --check"),
+    scheduler = scheduler,
+)
+
+##########
 # the command we want to run in node1 is as simple as it gets
 ping = SshJob(
     node = faraday,
+    required = check_lease,
     command = Run('baleine', 'deploy', '--nodes', node, '--image', 'ghcr.io/haysberg/baleine:main', '--command', '"ping -c1 google.fr"'),
     scheduler = scheduler)
 

@@ -48,6 +48,8 @@ pub enum Action {
     Destroy {
         #[clap(help = "doesn't ask if you really want to destroy the container")]
         #[clap(short, long)]
+        #[clap(short_alias = 'f')]
+        #[clap(alias = "force")]
         yes: bool,
 
         #[clap(help = "nodes you want to destroy in the rhubarbe format")]
