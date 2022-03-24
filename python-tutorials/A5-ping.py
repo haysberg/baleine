@@ -48,14 +48,13 @@ check_lease = SshJob(
 )
 
 ##########
-# 'baleine', 'deploy', '--nodes', node, '--image', 'ghcr.io/haysberg/baleine:main', '--command', '"ping -c1 google.fr"'
 cmd = """baleine deploy --nodes """ + node + """ --image ghcr.io/haysberg/baleine:main --command "ping -c1 google.fr" """
 
 # the command we want to run in node1 is as simple as it gets
 ping = SshJob(
     node = faraday,
     required = check_lease,
-    command = Run(split(cmd)),
+    command = Run(cmd),
     scheduler = scheduler)
 
 ##########

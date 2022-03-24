@@ -28,7 +28,7 @@ verbose_ssh = args.verbose_ssh
 faraday = SshNode(hostname = gateway_hostname, username = gateway_username,
                   verbose = verbose_ssh)
 
-node = '36'
+node = '25'
 
 ##########
 # create an orchestration scheduler

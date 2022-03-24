@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser
-
 from asynciojobs import Scheduler
-
 from apssh import SshNode, SshJob
 from apssh import Run
 
 ##########
 gateway_hostname  = 'faraday.inria.fr'
 gateway_username  = 'root'
+default_node = '18'
 verbose_ssh = True
 
 # this time we want to be able to specify username and verbose_ssh
@@ -19,7 +18,7 @@ parser.add_argument("-s", "--slice", default=gateway_username,
                          .format(gateway_username))
 parser.add_argument("-v", "--verbose-ssh", default=False, action='store_true',
                     help="run ssh in verbose mode")
-parser.add_argument("-n", "--node", default='36', action='store_true',
+parser.add_argument("-n", "--node", default=default_node, action='store_true',
                     help="the node to run the command on")
 args = parser.parse_args()
 
@@ -47,11 +46,13 @@ check_lease = SshJob(
 )
 
 ##########
+cmd = """baleine deploy --nodes """ + node + """ --image ghcr.io/haysberg/baleine:main --command "ping -c1 google.fr" """
+
 # the command we want to run in node1 is as simple as it gets
 ping = SshJob(
     node = faraday,
     required = check_lease,
-    command = Run('baleine', 'deploy', '--nodes', node, '--image', 'ghcr.io/haysberg/baleine:main', '--command', '"ping -c1 google.fr"'),
+    command = Run(cmd),
     scheduler = scheduler)
 
 ##########
