@@ -17,16 +17,19 @@ pub fn deploy(
     node: &str,
 ) {
     // We change the &Option<Vec<String>> object into a String using this method.
-    let (command, options) = parse_options_cmd(command, options);
+    //let (command, options) = parse_options_cmd(command, options);
 
     //We then create the command before sending it to the ssh_command() function
     let cmd = format!("docker run --name container -v /home/container/container_fs:/var --privileged --cap-add=ALL {options} {image} {command} && docker container ls -a",
-        options = options,
+        options = match options {
+            True => "",
+            Some(_) => format!("{}", options.as_ref().unwrap_or(vec!["".to_string()].as_ref()).iter().map(|x| format!("{} ", x)).collect())
+        },
         image = image,
         //If the command is empty, we don't add double quotes.
-        command = match (command == "" || command == " ") {
+        command = match command {
             True => "",
-            False => format!("\"{}\"", command)
+            Some(_) => format!("\"{}\"", command.as_ref().unwrap_or(vec!["".to_string()].as_ref()).iter().map(|x| format!("{} ", x)).collect())
         }
     );
 
