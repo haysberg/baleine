@@ -161,20 +161,6 @@ pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> String {
     }
 }
 
-/// Takes in the command and options parameters given by the user and turns them into Strings
-/// Which are usable with the ssh_command function
-///
-/// # Arguments
-///
-/// * `command` - the command and arguments we want to run on the Docker container
-/// * `options` - the Docker options we are passing 
-pub fn parse_options_cmd(command: &Option<Vec<String>>, options: &Option<Vec<String>>) -> (String, String) {
-    return (
-        command.as_ref().unwrap_or(vec!["".to_string()].as_ref()).iter().map(|x| format!("{} ", x)).collect(),
-        options.as_ref().unwrap_or(vec!["".to_string()].as_ref()).iter().map(|x| format!("{} ", x)).collect()
-    );
-}
-
 /// This command sanitizes the terminal.
 /// We had weird terminal issues when deploying a large number of machines before.
 /// Using this function at the end of your code should help.
