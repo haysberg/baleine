@@ -1,8 +1,13 @@
 [package]
 name = "baleine"
-version = "0.3.2"
+version = "0.4.1"
 authors = ["Téo Haÿs"]
 edition = "2018"
+
+# https://github.com/johnthagen/min-sized-rust
+[profile.release]
+lto = true
+strip = true
 
 [dependencies]
 # clap is used for argument parsing
@@ -15,3 +20,4 @@ reqwest = {version = "*", features = ["blocking", "json"]}
 json = "*"
 # crossbeam is used to enable multi-threading when sending SSH commands
 crossbeam = "*"
+

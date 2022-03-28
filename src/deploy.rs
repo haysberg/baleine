@@ -1,4 +1,3 @@
-use crate::utils::parse_options_cmd;
 use crate::utils::ssh_command;
 use crate::utils::stty_sane;
 use crossbeam;
@@ -17,14 +16,23 @@ pub fn deploy(
     node: &str,
 ) {
     // We change the &Option<Vec<String>> object into a String using this method.
-    let (command, options) = parse_options_cmd(command, options);
 
     //We then create the command before sending it to the ssh_command() function
     let cmd = format!("docker run --name container -v /home/container/container_fs:/var --privileged --cap-add=ALL {options} {image} {command} && docker container ls -a",
-        options = options,
+        options = match options {
+            None => format!(""),
+            Some(content) => content.get(0).unwrap().to_string()
+        },
         image = image,
-        command = command
+        //If the command is empty, we don't add double quotes.
+        command = match command {
+            None => format!(""),
+            Some(content) => format!("\"{}\"", content.get(0).unwrap().to_string())
+        }
     );
+
+    //Priting it just for debugging purposes
+    println!("Mapping : {}", cmd);
 
     //We run the SSH command
     match ssh_command(node.to_string(), cmd) {
@@ -80,15 +88,6 @@ pub fn entry(
         Ok(_) => (),
         Err(_) => panic!("We could not destroy the running containers for an unknown reason."),
     };
-
-    //We format the SSH command that we will send to slave node.
-    let cmd = format!("docker run --name container -v /home/container/container_fs:/var --privileged --cap-add=ALL {options} {image} {command} && docker container ls -a",
-    options = parse_options_cmd(command, options).1,
-    image = image,
-    command = parse_options_cmd(command, options).0);
-
-    //Priting it just for debugging purposes
-    println!("Mapping : {}", cmd);
 
     //We split our string from rhubarbe-nodes ("fit 01 fit02 fit03") into an array that we can iterate on (["fit01", "fit02", "fit03"])
     let mut nodes: Vec<_> = nodes.split(" ").collect();

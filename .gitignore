@@ -15,3 +15,5 @@ Cargo.lock
 /target
 rhubarbe.log
 /setup_files/gateway/.env
+
+.vscode
