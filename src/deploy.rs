@@ -18,7 +18,7 @@ pub fn deploy(
     // We change the &Option<Vec<String>> object into a String using this method.
 
     //We then create the command before sending it to the ssh_command() function
-    let cmd = format!("docker run --name container -v /home/container/container_fs:/var --privileged --cap-add=ALL {options} {image} {command} && docker container ls -a",
+    let cmd = format!("docker pull {image} && docker run --name container -v /home/container/container_fs:/var --privileged --cap-add=ALL {options} {image} {command} && docker container ls -a",
         options = match options {
             None => format!(""),
             Some(content) => content.get(0).unwrap().to_string()
