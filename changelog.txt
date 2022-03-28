@@ -6,3 +6,4 @@
 - Added a "-f" short flag alias and a "--force" alias for the "--yes" option in the destroy subcommand
 - Fixed a bug where double quotes were added to the command even when no command was provided, overriding the default Docker entrypoint.
 - Added a "docker pull" command before deploy so that if you need the latest image, you'll get it.
+- Added "network=host" in the deploy command
