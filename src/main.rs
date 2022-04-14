@@ -23,13 +23,13 @@ fn main() {
         Ok(_) => (),
         Err(_) => match dotenv::from_path(relative){
             Ok(_) => (),
-            Err(e) => panic!("Couldn't access config file at {0}, caused error : {1}", p.display(), e)
+            Err(_) => println!("Couldn't access config file at {0} numerous errors could happen !", p.display())
         }
     }
 
     //We get the arguments provided by the user, and match them with the ones listed in args.yaml
     let args = EntryArgs::parse(); 
-    //println!("{:?}", args); 
+    println!("{:?}", args); 
 
     //Depending on what subcommand the user has put in the CLI, we call the related function.
     match &args.action {

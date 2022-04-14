@@ -172,16 +172,16 @@ pub fn stty_sane() {
 
 pub fn parse_cmd_opt(command: &Option<Vec<String>>, options: &Option<Vec<String>>) -> (Option<String>, Option<String>) {
     let mut parsed_options : Option<String> = None;
-    let mut parsed_command : Option<String> = None;
     let mut parsed = false;
     
-    parsed_command = match command {
+    let mut parsed_command = match command {
+        //In case --command is used BEFORE --options
         Some(vector) => {
             parsed = true;
             if vector.contains(&"--options".to_string()){
                 let index = vector.iter().position(|x| x == &"--options".to_string()).unwrap();
-                parsed_options = Some(vector[index..].iter().map(|x| format!("{} ", x)).collect());
-                Some(vector[(index-1)..].iter().map(|x| format!("{} ", x)).collect())
+                parsed_options = Some(vector[(index+1)..].iter().map(|x| format!("{} ", x)).collect());
+                Some(vector[..(index)].iter().map(|x| format!("{} ", x)).collect())
             }else{
                 Some(vector.iter().map(|x| format!("{} ", x)).collect())
             }
@@ -194,8 +194,8 @@ pub fn parse_cmd_opt(command: &Option<Vec<String>>, options: &Option<Vec<String>
             Some(vector) => {
                 if vector.contains(&"--command".to_string()){
                     let index = vector.iter().position(|x| x == &"--command".to_string()).unwrap();
-                    parsed_command = Some(vector[index..].iter().map(|x| format!("{} ", x)).collect());
-                    Some(vector[(index-1)..].iter().map(|x| format!("{} ", x)).collect())
+                    parsed_command = Some(vector[(index+1)..].iter().map(|x| format!("{} ", x)).collect());
+                    Some(vector[..(index)].iter().map(|x| format!("{} ", x)).collect())
                 }else{
                     Some(vector.iter().map(|x| format!("{} ", x)).collect())
                 }
