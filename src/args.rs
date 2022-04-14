@@ -28,6 +28,8 @@ pub enum Action {
         image: String,
 
         #[clap(help = "the options string that you want to send to the container")]
+        #[clap(allow_hyphen_values = true)]
+        #[clap(multiple_values = true)]
         #[clap(short, long)]
         options: Option<Vec<String>>,
 
@@ -40,6 +42,8 @@ pub enum Action {
         bootstrap: Option<String>,
 
         #[clap(help = "Use this option to choose what command to pass to the container. ALWAYS USE LAST.")]
+        #[clap(allow_hyphen_values = true)]
+        #[clap(multiple_values = true)]
         #[clap(short, long)]
         command: Option<Vec<String>>
     },
