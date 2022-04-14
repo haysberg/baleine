@@ -17,7 +17,7 @@ pub struct EntryArgs {
 
 #[derive(Subcommand, Debug)]
 #[clap(trailing_var_arg = true)]
-#[clap(dont_delimit_trailing_values = true)]
+#[clap(dont_delimit_trailing_values = false)]
 #[clap(allow_hyphen_values = true)]
 pub enum Action {
     #[clap(about = "deploys the selected container on nodes")]
