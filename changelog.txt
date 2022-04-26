@@ -1,9 +1,6 @@
-0.4.1
+0.4.2
 ------
 
-- Fixed a bug where the command sent to the Docker daemon was not between double quotes, causing it to ignore all arguments after the first one. (for example : ls -al would be considered as just ls)
-- Removed problematic options in the command parser for the "deploy" subcommand : You now HAVE to put the values for the "--command" and "--options" arguments between quotes.
-- Added a "-f" short flag alias and a "--force" alias for the "--yes" option in the destroy subcommand
-- Fixed a bug where double quotes were added to the command even when no command was provided, overriding the default Docker entrypoint.
-- Added a "docker pull" command before deploy so that if you need the latest image, you'll get it.
-- Added "network=host" in the deploy command
+- --command and --options can now be used simultaneously, as long as they are at the end of the command.
+- The Gateway installer script now updates the Rust version and libraries
+- Removed the -c and -o shorthand flags for --command and --options to avoid confusion when dealing with Docker arguments

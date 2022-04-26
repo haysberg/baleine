@@ -28,7 +28,9 @@ pub enum Action {
         image: String,
 
         #[clap(help = "the options string that you want to send to the container")]
-        #[clap(short, long)]
+        #[clap(allow_hyphen_values = true)]
+        #[clap(multiple_values = true)]
+        #[clap(long)]
         options: Option<Vec<String>>,
 
         #[clap(help = "nodes you want to deploy the container on, using the rhubarbe format")]
@@ -40,7 +42,9 @@ pub enum Action {
         bootstrap: Option<String>,
 
         #[clap(help = "Use this option to choose what command to pass to the container. ALWAYS USE LAST.")]
-        #[clap(short, long)]
+        #[clap(allow_hyphen_values = true)]
+        #[clap(multiple_values = true)]
+        #[clap(long)]
         command: Option<Vec<String>>
     },
 

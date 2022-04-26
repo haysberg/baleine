@@ -1,5 +1,6 @@
 #!/bin/bash
-
+rustup update
+cargo update
 cargo build --release
 sudo cp ./target/release/baleine /bin/baleine
 
