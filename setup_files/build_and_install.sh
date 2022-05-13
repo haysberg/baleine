@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo dnf install rust cargo
+
 cargo build --release
 sudo cp ./target/release/baleine /bin/baleine
 
