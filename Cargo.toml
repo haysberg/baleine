@@ -1,6 +1,6 @@
 [package]
 name = "baleine"
-version = "0.4.1"
+version = "0.4.2"
 authors = ["Téo Haÿs"]
 edition = "2018"
 
