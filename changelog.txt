@@ -1,6 +1,6 @@
-0.4.2
+0.5
 ------
-
-- --command and --options can now be used simultaneously, as long as they are at the end of the command.
-- The Gateway installer script now updates the Rust version and libraries
-- Removed the -c and -o shorthand flags for --command and --options to avoid confusion when dealing with Docker arguments
+- rdsh now properly takes argument instead of just a whole string as an executable
+- The Gateway installer script now install cargo and Rust on the machine instead of using rustup
+- --nodes does not have the shorthand flag -n anymore to avoid confusion.
+- --nodes can now take multiple values
