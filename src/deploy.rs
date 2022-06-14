@@ -1,5 +1,4 @@
 use crate::utils::ssh_command;
-use crate::utils::stty_sane;
 use crossbeam;
 
 /// This function deploys a Docker container on a node given in input.
@@ -31,9 +30,6 @@ pub fn deploy(
             Some(content) => content
         }
     );
-
-    //Priting it just for debugging purposes
-    println!("Mapping : {}", cmd);
 
     //We run the SSH command
     match ssh_command(node.to_string(), cmd) {
@@ -114,7 +110,4 @@ pub fn entry(
             Err(_) => println!("ERROR DURING DEPLOYMENT"),
         };
     }
-
-    //Cleaning up the terminal output in case the terminal is botched.
-    stty_sane();
 }

@@ -1,6 +1,23 @@
+use std::io::Read;
 use std::env;
-use std::io::{BufRead, BufReader, Error, ErrorKind};
+use std::io::{BufRead, BufReader, Error};
 use std::process::{Command, Stdio};
+use std::net::TcpStream;
+use ssh2::Session;
+
+// pub fn ssh_agent_auth(agent: &ssh2::Agent) -> Result<(), &'static str>{
+//     for pk in agent.identities().unwrap(){
+//             println!("Test {:?}", pk);
+//             match agent.userauth("root", pk){
+//                 Ok(_) => {
+//                     return Ok(())
+//                 },
+//                 Err(_) => ()
+//             }
+//     }
+
+//     return Err("No publickey found in SSH agent that allowed auth.");
+// }
 
 /// Runs a command on a specified host.
 /// Please note that it doesn't use the SSH2 crate, but instead the included ssh binary on the master machine.
@@ -11,24 +28,56 @@ use std::process::{Command, Stdio};
 ///
 /// * `host` - name of the SSH host the command will be executed on
 /// * `command` - command to be executed on the remote host
+/// * `user` - the username to connect to the remote host
 pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
-    let stdout = Command::new("ssh")
-        .arg(format!("root@{host}", host = host))
-        .arg("-t")
-        .arg(command)
-        .stdout(Stdio::piped())
-        .spawn()?
-        .stdout
-        .ok_or_else(|| Error::new(ErrorKind::Other, "Could not capture standard output."))?;
+    
+    // Connect to the remote host
+    let tcp = TcpStream::connect(format!("{}:22", host)).unwrap();
+    let mut sess = Session::new().unwrap();
+    sess.set_tcp_stream(tcp);
+    sess.handshake().unwrap();
+    let mut agent = sess.agent().unwrap();
 
-    let reader = BufReader::new(stdout);
+    // Connect the agent and request a list of identities
+    agent.connect().unwrap();
 
-    reader
-        .lines()
-        .filter_map(|line| line.ok())
-        .for_each(|line| println!("\r{host} : {line}", host = host, line = line));
+    // Try to authenticate with the first identity in the agent.
+    sess.userauth_agent("root").unwrap();
+    // match agent.list_identities() {
+    //     Ok(_) => (),
+    //     Err(e) => panic!("Could not list SSH Identities : {}", e)
+    // }
 
-    println!("\r");
+    // for identity in agent.identities().unwrap() {
+    //     println!("{}", identity.comment());
+    // }
+
+    // let mut found = false;
+    // for pk in agent.identities().unwrap(){
+    //     match agent.userauth("root", &pk){
+    //         Ok(_) => {
+    //             found = true
+    //         },
+    //         Err(_) => ()
+    //     }
+    // }
+
+    // if !found {
+    //     panic!("Could not find an appropriate SSH key inside the ssh-agent");
+    // }
+
+    // Make sure we succeeded
+    assert!(sess.authenticated());
+    println!("Oui");
+
+    let mut channel = sess.channel_session().unwrap();
+    channel.exec(&command).unwrap();
+    let mut s = String::new();
+    channel.read_to_string(&mut s).unwrap();
+    println!("{}", s);
+    channel.wait_close();
+    println!("{}", channel.exit_status().unwrap());
+    
     Ok(())
 }
 
@@ -160,15 +209,6 @@ pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> String {
         }
     }
 }
-
-/// This command sanitizes the terminal.
-/// We had weird terminal issues when deploying a large number of machines before.
-/// Using this function at the end of your code should help.
-pub fn stty_sane() {
-    Command::new("/usr/bin/stty").arg("sane").output().expect("");
-    Command::new("/usr/bin/echo").arg("").output().expect("");
-}
-
 
 pub fn parse_cmd_opt(command: &Option<Vec<String>>, options: &Option<Vec<String>>) -> (Option<String>, Option<String>) {
     let mut parsed_options : Option<String> = None;

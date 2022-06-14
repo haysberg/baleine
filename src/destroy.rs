@@ -1,6 +1,5 @@
 use std::io::prelude::*;
 use crate::utils::ssh_command;
-use crate::utils::stty_sane;
 
 /// This function stops and removes the container currently running on a node even if there is none.
 ///
@@ -67,8 +66,6 @@ pub fn entry(yes: &bool, nodes: &Option<Vec<String>>){
             Ok(_) => println!("Destruction complete !"),
             Err(_) => println!("ERROR DURING DESTRUCTION"),
         };
-
-        stty_sane();
     }
     //If the user changes his mind, we simply put a message to tell him not to worry.
     else {
