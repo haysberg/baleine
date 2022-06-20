@@ -28,11 +28,14 @@ pub enum Action {
         image: String,
 
         #[clap(help = "the options string that you want to send to the container")]
-        #[clap(short, long)]
+        #[clap(allow_hyphen_values = true)]
+        #[clap(multiple_values = true)]
+        #[clap(long)]
         options: Option<Vec<String>>,
 
         #[clap(help = "nodes you want to deploy the container on, using the rhubarbe format")]
-        #[clap(short, long)]
+        #[clap(long)]
+        #[clap(multiple_values = true)]
         nodes: Option<Vec<String>>,
 
         #[clap(help = "allows you to choose what ndz image to install on a node before deploying a container")]
@@ -40,7 +43,9 @@ pub enum Action {
         bootstrap: Option<String>,
 
         #[clap(help = "Use this option to choose what command to pass to the container. ALWAYS USE LAST.")]
-        #[clap(short, long)]
+        #[clap(allow_hyphen_values = true)]
+        #[clap(multiple_values = true)]
+        #[clap(long)]
         command: Option<Vec<String>>
     },
 
@@ -53,7 +58,7 @@ pub enum Action {
         yes: bool,
 
         #[clap(help = "nodes you want to destroy in the rhubarbe format")]
-        #[clap(short, long)]
+        #[clap(long)]
         nodes: Option<Vec<String>>,
     },
 
@@ -71,7 +76,7 @@ pub enum Action {
         name: String,
         
         #[clap(help = "identifier of the node you want to save")]
-        #[clap(required = true, short, long)]
+        #[clap(required = true, long)]
         node: String,
     }
 }

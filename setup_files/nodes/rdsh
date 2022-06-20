@@ -9,5 +9,5 @@ else
     case "$1" in
 	"-c") shift;;
     esac
-    docker exec container "$@"
+    docker exec container $@
 fi
