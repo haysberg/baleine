@@ -1,4 +1,4 @@
-use std::env;
+use std::env::{self, VarError};
 use std::io::{BufRead, BufReader, Error, ErrorKind};
 use std::process::{Command, Stdio};
 
@@ -27,6 +27,37 @@ pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
         .lines()
         .filter_map(|line| line.ok())
         .for_each(|line| println!("\r{host} : {line}", host = host, line = line));
+
+    println!("\r");
+    Ok(())
+}
+
+/// Runs a command on a specified host.
+/// Please note that it doesn't use the SSH2 crate, but instead the included ssh binary on the master machine.
+/// 
+/// The output is printed in real time and is piped to the current terminal stdout.
+///
+/// # Arguments
+///
+/// * `host` - name of the SSH host the command will be executed on
+/// * `command` - command to be executed on the remote host
+pub fn local_command(command: String) -> Result<(), Error> {
+    println!("command : {:?}", command);
+
+    let stdout = Command::new("bash")
+        .arg("-c")
+        .arg(command)
+        .stdout(Stdio::piped())
+        .spawn()?
+        .stdout
+        .ok_or_else(|| Error::new(ErrorKind::Other, "Could not capture standard output."))?;
+
+    let reader = BufReader::new(stdout);
+
+    reader
+        .lines()
+        .filter_map(|line| line.ok())
+        .for_each(|line| println!("\r{line}", line = line));
 
     println!("\r");
     Ok(())
@@ -89,13 +120,13 @@ pub fn rwait() {
 /// # Arguments
 ///
 /// * `key` - The environment variable we are looking for
-pub fn env_var(key: &str) -> String {
+pub fn env_var(key: &str) -> Result<String, VarError> {
     match env::var(key) {
         Ok(_) => (),
-        Err(e) => panic!("couldn't interpret {}: {}", key, e),
+        Err(_) => (),
     };
 
-    return env::var(key).unwrap();
+    return env::var(key);
 }
 
 /// Checks if a container is currently deployed on a host

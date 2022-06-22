@@ -13,13 +13,13 @@ pub fn list (details: &Option<String>) {
     //We generate the URL used to call the API
     let url = match details{
         Some(image_name) => format!("{protocol}{address}/v2/{image_name}/tags/list",
-        protocol = env_var("REGISTRY_PROTOCOL"),
-        address = env_var("REGISTRY_URL"),
+        protocol = env_var("REGISTRY_PROTOCOL").unwrap_or("http://".to_string()),
+        address = env_var("REGISTRY_URL").unwrap_or("faraday".to_string()),
         image_name = image_name),
         
         None => format!("{protocol}{address}/v2/_catalog",
-        protocol = env_var("REGISTRY_PROTOCOL"),
-        address = env_var("REGISTRY_URL")),
+        protocol = env_var("REGISTRY_PROTOCOL").unwrap_or("http://".to_string()),
+        address = env_var("REGISTRY_URL").unwrap_or("faraday".to_string())),
     };
     
     
@@ -34,7 +34,7 @@ pub fn list (details: &Option<String>) {
     
     match details {
         Some(image_name) => println!("List of tags for the {} image :", image_name),
-        None => println!("List of Images on {protocol}{address}", protocol = env_var("REGISTRY_PROTOCOL"), address = env_var("REGISTRY_URL")) 
+        None => println!("List of Images on {protocol}{address}", protocol = env_var("REGISTRY_PROTOCOL").unwrap_or("http://".to_string()), address = env_var("REGISTRY_URL").unwrap_or("faraday".to_string())) 
     }
 
     //We print the list of images before exiting the function.

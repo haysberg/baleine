@@ -20,4 +20,7 @@ reqwest = {version = "*", features = ["blocking", "json"]}
 json = "*"
 # crossbeam is used to enable multi-threading when sending SSH commands
 crossbeam = "*"
-
+# url is used in the build feature to check if we provide a URL or a file path
+url = "*"
+# tempfile
+tempfile = "*"
