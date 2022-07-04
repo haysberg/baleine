@@ -6,6 +6,7 @@ mod list;
 mod destroy;
 mod utils;
 mod args;
+mod build;
 extern crate dotenv;
 use std::path::Path;
 
@@ -36,6 +37,7 @@ fn main() {
         Action::Deploy { image, options, nodes, bootstrap, command } => deploy::entry(image, options, nodes, bootstrap, command),
         Action::Destroy { yes, nodes } => destroy::entry(yes, nodes),
         Action::List { details } => list::entry(details),
-        Action::Save { name, node } => save::entry(name, node)
+        Action::Save { name, node } => save::entry(name, node),
+        Action::Build { file, tags, url } => build::entry(file, url, tags)
     }
 }

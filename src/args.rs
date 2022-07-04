@@ -62,6 +62,22 @@ pub enum Action {
         nodes: Option<Vec<String>>,
     },
 
+    #[clap(about = "builds and uploads a Dockerfile to the repo")]
+    Build {
+        #[clap(help = "path to the Dockerfile")]
+        #[clap(required_unless_present("url"), short, long)]
+        file: Option<String>,
+
+        #[clap(help = "path to the Dockerfile")]
+        #[clap(required_unless_present("file"), short, long)]
+        url: Option<String>,
+
+        #[clap(help = "tags to give to the image created")]
+        #[clap(required = true, long)]
+        #[clap(multiple_values = true)]
+        tags: Vec<String>,
+    },
+
     #[clap(about = "lists the CUSTOM images to deploy. Images on Dockerhub are NOT listed")]
     List {
         #[clap(help = "name of the image for which you want to display all the different versions available")]
