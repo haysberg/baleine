@@ -1,6 +1,5 @@
-0.5
+0.6
 ------
-- rdsh now properly takes argument instead of just a whole string as an executable
-- The Gateway installer script now install cargo and Rust on the machine instead of using rustup
-- --nodes does not have the shorthand flag -n anymore to avoid confusion.
-- --nodes can now take multiple values
+- The tutorial image now uses SSH instead of using rdsh
+- Added the "build" command to build and push an image from a URL or a local file
+- Performance fixes

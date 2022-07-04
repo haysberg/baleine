@@ -14,7 +14,7 @@ pub fn save(name: &String, node: &str) {
     //Here, we create a new image from the running container on the node, and push it to the
     //remote registry.
     let cmd = format!("docker commit container {image_name} && docker image tag {image_name} {repository}/{image_name} && docker push --all-tags {repository}/{image_name}",
-    repository = env_var("SAVE_URL"),
+    repository = env_var("SAVE_URL").unwrap_or("faraday.repo".to_string()),
     image_name = name);
 
     //We run the docker commit container command on the node. If the ssh_command() function doesn't work
