@@ -1,5 +1,5 @@
-0.6
+0.7
 ------
-- The tutorial image now uses SSH instead of using rdsh
-- Added the "build" command to build and push an image from a URL or a local file
-- Performance fixes
+- /lib/modules, /var/run/dbus, /sys/fs/cgroup now mounted inside the container
+- added the DNS_ADDR configuration line to target a specific DNS server for name resolution
+- Changed the Docker image to run /sbin/init by default, to allow access to the systemctl command

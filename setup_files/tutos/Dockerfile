@@ -44,4 +44,4 @@ RUN ln -s /root/r2lab-embedded/shell/nodes.sh /root/.bash_profile
 
 EXPOSE 2222
 
-CMD ["/usr/sbin/sshd", "-D"]
+CMD ["/sbin/init"]
