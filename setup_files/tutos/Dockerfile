@@ -8,7 +8,7 @@ RUN echo "PS1='[CONTAINER] ${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '" | tee
 
 #Setting up OpenSSH server
 RUN sed -ri 's/^#?PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
-RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+RUN sed -ri 's/^UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 RUN sed -i 's/#Port 22/Port 2222/g' /etc/ssh/sshd_config
 RUN sed -i 's/#ListenAddress 0.0.0.0/ListenAddress 0.0.0.0/g' /etc/ssh/sshd_config
 RUN echo "auth sufficient pam_permit.so" | tee -a /etc/pam.d/sshd >> /dev/null

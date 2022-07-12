@@ -1,5 +1,6 @@
 use crate::utils::ssh_command;
 use crate::utils::stty_sane;
+use crate::utils::env_var;
 use crossbeam;
 
 /// This function deploys a Docker container on a node given in input.
@@ -19,7 +20,7 @@ pub fn deploy(
     let (command, options) = crate::utils::parse_cmd_opt(command, options);
 
     //We then create the command before sending it to the ssh_command() function
-    let cmd = format!("docker pull {image} && docker run --name container {options} -v /home/container/container_fs:/var --network=host --privileged --cap-add=ALL {image} {command} && docker container ls -a",
+    let cmd = format!("docker pull {image} && docker run --name container {options} -v /home/container/container_fs:/var -v /lib/modules:/lib/modules -v /var/run/dbus:/var/run/dbus -v /sys/fs/cgroup:/sys/fs/cgroup --network=host --privileged --cap-add=ALL --dns {dns} {image} {command} && docker container ls -a",
         options = match options {
             None => format!(""),
             Some(content) => content
@@ -29,7 +30,8 @@ pub fn deploy(
         command = match command {
             None => format!(""),
             Some(content) => content
-        }
+        },
+        dns = env_var("DNS_ADDR").unwrap_or("192.168.3.100".to_string())
     );
 
     //Priting it just for debugging purposes
