@@ -1,6 +1,6 @@
 use crate::utils::{env_var, ssh_command};
 use std::process::Command;
-use tracing::error;
+use tracing::{error, instrument};
 
 extern crate dotenv;
 
@@ -10,6 +10,7 @@ extern crate dotenv;
 ///
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
+#[instrument]
 pub fn save(name: &String, node: &str) {
     //We create the string for the command that we are going to execute remotely.
     //Here, we create a new image from the running container on the node, and push it to the
@@ -32,6 +33,7 @@ pub fn save(name: &String, node: &str) {
 ///
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
+#[instrument]
 pub fn entry(name: &String, node: &String) {
     //We then run rhubarbe nodes with the nodes.
     //This is a prerequisite to save the nodes

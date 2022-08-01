@@ -12,10 +12,10 @@ extern crate dotenv;
 use std::path::Path;
 use crate::args::{EntryArgs, Action};
 use clap::{Parser};
-use tracing::{warn};
+use tracing::{warn, instrument};
 use tracing_subscriber;
 
-
+#[instrument]
 fn main() {
     //Initializing the log display
     tracing_subscriber::fmt::init();

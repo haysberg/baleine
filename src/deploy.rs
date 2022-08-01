@@ -2,6 +2,7 @@ use crate::utils::ssh_command;
 use crate::utils::env_var;
 use crossbeam;
 use tracing::info;
+use tracing::instrument;
 use tracing::{trace, error};
 use rayon::prelude::*;
 
@@ -13,6 +14,7 @@ use rayon::prelude::*;
 /// * `image` - Reference to a String. Name of the Docker image you are deploying.
 /// * `options` - A list of string containing the different options given by the user. This is an Option object, so if no option has been given, it is going to be a None object.
 /// * `command` - A list of string containing the command and flags given by the user. This is an Option object, so if no command has been given, it is going to be a None object.
+#[instrument]
 pub fn deploy(
     image: &String,
     options: &Option<Vec<String>>,
@@ -42,7 +44,7 @@ pub fn deploy(
 
     //We run the SSH command
     match ssh_command(node.to_string(), cmd) {
-        Ok(_) => info!("Succesfully deployed node {node}", node = node.to_string()),
+        Ok(_) => info!("Successfully deployed node {node}", node = node.to_string()),
         Err(_) => error!("Could not connect using SSH to {node}, is it on ?", node = node),
     }
 }
@@ -58,6 +60,7 @@ pub fn deploy(
 /// * `bootstrap` - The name of the disk image we will deploy before deploying the Docker container. Option object.
 /// * `command` - The command that we will pass to the Docker container, overriding the possible entrypoint. Optional Vector of String, that might contain the name of the command and all the arguments given to it.
 /// For example : ["ls", "--all", "-t"]
+#[instrument]
 pub fn entry(
     image: &String,
     options: &Option<Vec<String>>,

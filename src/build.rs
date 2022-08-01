@@ -1,4 +1,4 @@
-use tracing::error;
+use tracing::{error, instrument};
 
 use crate::utils::{env_var, local_command};
 
@@ -10,6 +10,7 @@ extern crate dotenv;
 ///
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
+#[instrument]
 pub fn build(file: &Option<String>, url: &Option<String>, tags: &Vec<String>) {
     let port = env_var("SAVE_PORT").unwrap_or("80".to_string());
     let primary_tag = tags.get(0).unwrap();
@@ -35,6 +36,7 @@ pub fn build(file: &Option<String>, url: &Option<String>, tags: &Vec<String>) {
 ///
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
+#[instrument]
 pub fn entry(file: &Option<String>, url: &Option<String>, tags: &Vec<String>) {
     build(file, url, tags);
 }

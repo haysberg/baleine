@@ -1,13 +1,14 @@
 use std::io::prelude::*;
 use crate::utils::ssh_command;
 
-use tracing::{error, info, debug};
+use tracing::{error, info, debug, instrument};
 
 /// This function stops and removes the container currently running on a node even if there is none.
 ///
 /// # Arguments
 ///
 /// * `node` - The node you wish to remove the Docker container currently running on
+#[instrument]
 pub fn destroy(node : &str){
     match ssh_command(node.to_string(), "docker stop container && docker container prune -f".to_string()){
         Ok(_) => (),
@@ -20,6 +21,7 @@ pub fn destroy(node : &str){
 /// # Arguments
 ///
 /// * `node` - The node you wish to remove the Docker container currently running on
+#[instrument]
 pub fn destroy_if_container(node : &str){
     if crate::utils::container_deployed(node){
         match ssh_command(node.to_string(), "docker stop container && docker container prune -f".to_string()){
@@ -36,6 +38,7 @@ pub fn destroy_if_container(node : &str){
 ///
 /// * `nodes` - The list of nodes you wish to remove the Docker containers currently running on
 /// * `yes` - Does not ask for user input to delete the container
+#[instrument]
 pub fn entry(yes: &bool, nodes: &Option<Vec<String>>){
 
     //We deal with the "yes" flag, which can be triggered with -y or --yes (cf args.yaml)

@@ -2,7 +2,7 @@ use std::env::{self, VarError};
 use std::io::{BufRead, BufReader, Error, ErrorKind};
 use std::process::{Command, Stdio};
 
-use tracing::{trace, info, debug};
+use tracing::{trace, info, debug, instrument};
 
 /// Runs a command on a specified host.
 /// Please note that it doesn't use the SSH2 crate, but instead the included ssh binary on the master machine.
@@ -13,6 +13,7 @@ use tracing::{trace, info, debug};
 ///
 /// * `host` - name of the SSH host the command will be executed on
 /// * `command` - command to be executed on the remote host
+#[instrument]
 pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
     Command::new("ssh")
         .arg(format!("root@{host}", host = host))
@@ -32,6 +33,7 @@ pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
 ///
 /// * `host` - name of the SSH host the command will be executed on
 /// * `command` - command to be executed on the remote host
+#[instrument]
 pub fn local_command(command: String) -> Result<(), Error> {
     info!("command : {:?}", command);
 
@@ -52,6 +54,7 @@ pub fn local_command(command: String) -> Result<(), Error> {
 ///
 /// * `image` - the .ndz image to deploy
 /// * `nodes` - list of slave nodes affected
+#[instrument]
 pub fn bootstrap(image: &String, nodes: &Vec<String>) {
     let tmp_nodes : String = nodes.iter().map(|x| format!("{} ", x)).collect();
     //Run the imaging through rhubarbe
@@ -66,6 +69,7 @@ pub fn bootstrap(image: &String, nodes: &Vec<String>) {
 /// This is important because if we don't do this, we send SSH commands to a machine that is not ready yet.
 /// 
 /// So if we don't, the program fails and crashes.
+#[instrument]
 pub fn rwait() {
     //rwait
     Command::new("/usr/local/bin/rhubarbe-wait").spawn();
@@ -76,6 +80,7 @@ pub fn rwait() {
 /// # Arguments
 ///
 /// * `key` - The environment variable we are looking for
+#[instrument]
 pub fn env_var(key: &str) -> Result<String, VarError> {
     match env::var(key) {
         Ok(_) => (),
@@ -90,6 +95,7 @@ pub fn env_var(key: &str) -> Result<String, VarError> {
 /// # Arguments
 ///
 /// * `host` - the slave node we want to check
+#[instrument]
 pub fn container_deployed(host: &str) -> bool {
     let output = Command::new("ssh")
         .arg(format!("root@{host}", host = host))
@@ -116,6 +122,7 @@ pub fn container_deployed(host: &str) -> bool {
 /// # Arguments
 ///
 /// * `nodes` - the list of nodes we are sending
+#[instrument]
 pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> Vec<String> {
     return match nodes {
         Some(nodes) => {
@@ -146,6 +153,7 @@ pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> Vec<String> {
     }
 }
 
+#[instrument]
 pub fn parse_cmd_opt(command: &Option<Vec<String>>, options: &Option<Vec<String>>) -> (Option<String>, Option<String>) {
     let mut parsed_options : Option<String> = None;
     let mut parsed = false;
