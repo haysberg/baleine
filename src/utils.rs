@@ -14,21 +14,11 @@ use tracing::{trace, info, debug};
 /// * `host` - name of the SSH host the command will be executed on
 /// * `command` - command to be executed on the remote host
 pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
-    let stdout = Command::new("ssh")
+    Command::new("ssh")
         .arg(format!("root@{host}", host = host))
         .arg("-t")
         .arg(command)
-        .stdout(Stdio::piped())
-        .spawn()?
-        .stdout
-        .ok_or_else(|| Error::new(ErrorKind::Other, "Could not capture standard output."))?;
-
-    let reader = BufReader::new(stdout);
-
-    reader
-        .lines()
-        .filter_map(|line| line.ok())
-        .for_each(|line| trace!("{host} : {line}", host = host, line = line));
+        .spawn();
 
     Ok(())
 }
@@ -45,20 +35,11 @@ pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
 pub fn local_command(command: String) -> Result<(), Error> {
     info!("command : {:?}", command);
 
-    let stdout = Command::new("bash")
+    Command::new("bash")
         .arg("-c")
         .arg(command)
         .stdout(Stdio::piped())
-        .spawn()?
-        .stdout
-        .ok_or_else(|| Error::new(ErrorKind::Other, "Could not capture standard output."))?;
-
-    let reader = BufReader::new(stdout);
-
-    reader
-        .lines()
-        .filter_map(|line| line.ok())
-        .for_each(|line| trace!("{line}", line = line));
+        .spawn();
         
     Ok(())
 }
@@ -74,21 +55,11 @@ pub fn local_command(command: String) -> Result<(), Error> {
 /// * `nodes` - list of slave nodes affected
 pub fn bootstrap(image: &String, nodes: &String) {
     //Run the imaging through rhubarbe
-    let stdout = Command::new("/usr/local/bin/rhubarbe-load")
+    Command::new("/usr/local/bin/rhubarbe-load")
         .arg("-i")
         .arg(image)
         .arg(nodes)
-        .stdout(Stdio::piped())
-        .spawn()
-        .unwrap()
-        .stdout;
-
-    let reader = BufReader::new(stdout.unwrap());
-
-    reader
-        .lines()
-        .filter_map(|line| line.ok())
-        .for_each(|line| trace!("{line}", line = line));
+        .spawn();
 }
 
 /// This function runs the rhubarbe-wait command.
@@ -97,18 +68,7 @@ pub fn bootstrap(image: &String, nodes: &String) {
 /// So if we don't, the program fails and crashes.
 pub fn rwait() {
     //rwait
-    let stdout = Command::new("/usr/local/bin/rhubarbe-wait")
-        .stdout(Stdio::piped())
-        .spawn()
-        .unwrap()
-        .stdout;
-
-    let reader = BufReader::new(stdout.unwrap());
-
-    reader
-        .lines()
-        .filter_map(|line| line.ok())
-        .for_each(|line| trace!("{line}", line = line));
+    Command::new("/usr/local/bin/rhubarbe-wait").spawn();
 }
 
 /// This function returns the value of a provided environment variable
