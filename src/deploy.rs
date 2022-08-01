@@ -25,7 +25,7 @@ pub fn deploy(
     let (command, options) = crate::utils::parse_cmd_opt(command, options);
 
     //We then create the command before sending it to the ssh_command() function
-    let cmd = format!("docker pull {image} && docker run --name container {options} -v /home/container/container_fs:/var -v /lib/modules:/lib/modules -v /var/run/dbus:/var/run/dbus -v /sys/fs/cgroup:/sys/fs/cgroup --network=host --privileged --cap-add=ALL --dns {dns} {image} {command} && docker container ls -a",
+    let cmd = format!("docker stop container || true && docker rm container || true && docker pull {image} && docker run --name container {options} -v /home/container/container_fs:/var -v /lib/modules:/lib/modules -v /var/run/dbus:/var/run/dbus -v /sys/fs/cgroup:/sys/fs/cgroup --network=host --privileged --cap-add=ALL --dns {dns} {image} {command} && docker container ls -a",
         options = match options {
             None => format!(""),
             Some(content) => content
