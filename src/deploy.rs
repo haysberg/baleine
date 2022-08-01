@@ -3,6 +3,7 @@ use crate::utils::env_var;
 use crossbeam;
 use tracing::info;
 use tracing::{trace, error};
+use rayon::prelude::*;
 
 
 /// This function deploys a Docker container on a node given in input.
@@ -16,7 +17,7 @@ pub fn deploy(
     image: &String,
     options: &Option<Vec<String>>,
     command: &Option<Vec<String>>,
-    node: &str,
+    node: &String,
 ) {
     // We change the &Option<Vec<String>> object into a String using this method.
     let (command, options) = crate::utils::parse_cmd_opt(command, options);
@@ -65,8 +66,8 @@ pub fn entry(
     command: &Option<Vec<String>>,
 ) {
     //We call this function so that rhubarbe-nodes can parse our list of nodes provided by the user.
-    let nodes = crate::utils::list_of_nodes(nodes);
-
+    let mut nodes = crate::utils::list_of_nodes(nodes);
+    
     //We deploy the specified image if the --bootstrap option is used
     match bootstrap {
         Some(ndz) => {
@@ -76,40 +77,16 @@ pub fn entry(
         None => (),
     }
 
-    //We destroy the containers running before on the host
-    match crossbeam::scope(|scope| {
-        for node in nodes.split(" ") {
-            scope.spawn(move |_| {
-                crate::destroy::destroy_if_container(&node);
-            });
-        }
-    }) {
-        Ok(_) => (),
-        Err(_) => panic!("We could not destroy the running containers for an unknown reason."),
-    };
-
-    //We split our string from rhubarbe-nodes ("fit 01 fit02 fit03") into an array that we can iterate on (["fit01", "fit02", "fit03"])
-    let mut nodes: Vec<_> = nodes.split(" ").collect();
-
     /*
      * We deploy the first node before all the others, to ensure that the docker image
      * will be pulled through the proxy for the rest of the nodes.
      * We use swap_remove as it always has a O(1) complexity.
      */
-    deploy(image, options, command, nodes.swap_remove(0));
+    let first_node = nodes.swap_remove(0);
+    deploy(image, options, command, &first_node);
 
     if !nodes.is_empty() {
         //We then create a thread for each node, running the deploy command through SSH
-        match crossbeam::scope(|scope| {
-            for node in nodes {
-                scope.spawn(move |_| {
-                    deploy(image, options, command, &node);
-                });
-            }
-        }) {
-            //We display a message depending of the outcome of the commands
-            Ok(_) => info!("Deployment complete !"),
-            Err(_) => error!("ERROR DURING DEPLOYMENT"),
-        };
+        nodes.par_iter().map(|x| deploy(image, options, command, &x));
     }
 }

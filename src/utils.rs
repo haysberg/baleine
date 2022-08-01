@@ -52,12 +52,13 @@ pub fn local_command(command: String) -> Result<(), Error> {
 ///
 /// * `image` - the .ndz image to deploy
 /// * `nodes` - list of slave nodes affected
-pub fn bootstrap(image: &String, nodes: &String) {
+pub fn bootstrap(image: &String, nodes: &Vec<String>) {
+    let tmp_nodes : String = nodes.iter().map(|x| format!("{} ", x)).collect();
     //Run the imaging through rhubarbe
     Command::new("/usr/local/bin/rhubarbe-load")
         .arg("-i")
         .arg(image)
-        .arg(nodes)
+        .arg(tmp_nodes)
         .spawn();
 }
 
@@ -115,10 +116,10 @@ pub fn container_deployed(host: &str) -> bool {
 /// # Arguments
 ///
 /// * `nodes` - the list of nodes we are sending
-pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> String {
+pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> Vec<String> {
     return match nodes {
         Some(nodes) => {
-            let nodes_arg : Vec<_> = nodes.iter().map(|r| format!("{} ", r)).collect();
+            let nodes_arg : Vec<_> = nodes.clone().iter().map(|r| format!("{} ", r)).collect();
             //We run the "rhubarbe nodes" command to get a list of nodes
             //Basically we don't do the automatic parsing here.
             let cmd = Command::new("/usr/local/bin/rhubarbe-nodes")
@@ -131,12 +132,12 @@ pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> String {
             info!("List of nodes : {}", nodes);
             nodes.pop();
 
-            nodes
+            nodes.split(" ").map(|x| x.to_string()).collect()
         }
         None => {
             match env::var("NODES") {
                 Ok(value) => {
-                    if value != "" { value }
+                    if value != "" { vec!(value.split(" ").map(|x| x.to_string()).collect()) }
                     else { panic!("$NODES is not set, and you didn't provide a list of nodes. Please use the -n option.") }
                 }
                 Err(_) => panic!("$NODES is not set, and you didn't provide a list of nodes. Please use the -n option.")

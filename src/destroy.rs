@@ -59,7 +59,7 @@ pub fn entry(yes: &bool, nodes: &Option<Vec<String>>){
         
         //we create threads and destroy the nodes
         match crossbeam::scope(|scope| {
-            for node in nodes.split(" ") {
+            for node in nodes {
                 scope.spawn(move |_| {
                     destroy(&node);
                 });
