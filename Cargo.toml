@@ -24,3 +24,6 @@ crossbeam = "*"
 url = "*"
 # tempfile
 tempfile = "*"
+# we use tracing to handle logs
+tracing = "*"
+tracing-subscriber = "*"

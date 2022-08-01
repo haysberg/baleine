@@ -2,6 +2,9 @@ use crate::utils::ssh_command;
 use crate::utils::stty_sane;
 use crate::utils::env_var;
 use crossbeam;
+use tracing::info;
+use tracing::{trace, error};
+
 
 /// This function deploys a Docker container on a node given in input.
 ///
@@ -35,18 +38,12 @@ pub fn deploy(
     );
 
     //Priting it just for debugging purposes
-    println!("Mapping : {}", cmd);
+    trace!("Mapping : {}", cmd);
 
     //We run the SSH command
     match ssh_command(node.to_string(), cmd) {
         Ok(_) => (),
-        Err(_) => println!(
-            "{}",
-            format!(
-                "Could not connect using SSH to {node}, is it on ?",
-                node = node
-            )
-        ),
+        Err(_) => error!("Could not connect using SSH to {node}, is it on ?", node = node),
     }
 }
 
@@ -112,8 +109,8 @@ pub fn entry(
             }
         }) {
             //We display a message depending of the outcome of the commands
-            Ok(_) => println!("Deployment complete !"),
-            Err(_) => println!("ERROR DURING DEPLOYMENT"),
+            Ok(_) => info!("Deployment complete !"),
+            Err(_) => error!("ERROR DURING DEPLOYMENT"),
         };
     }
 
