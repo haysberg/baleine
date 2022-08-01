@@ -1,5 +1,7 @@
 extern crate json;
 extern crate dotenv;
+use tracing::info;
+
 use crate::utils::env_var;
 
 /// This function allows us to list the images available on the registry configured in config.toml.
@@ -33,19 +35,19 @@ pub fn list (details: &Option<String>) {
     let parsed = json::parse(&result);
     
     match details {
-        Some(image_name) => println!("List of tags for the {} image :", image_name),
-        None => println!("List of Images on {protocol}{address}", protocol = env_var("REGISTRY_PROTOCOL").unwrap_or("http://".to_string()), address = env_var("REGISTRY_URL").unwrap_or("faraday".to_string())) 
+        Some(image_name) => info!("List of tags for the {} image :", image_name),
+        None => info!("List of Images on {protocol}{address}", protocol = env_var("REGISTRY_PROTOCOL").unwrap_or("http://".to_string()), address = env_var("REGISTRY_URL").unwrap_or("faraday".to_string())) 
     }
 
     //We print the list of images before exiting the function.
     for member in parsed.unwrap()["repositories"].members() {
-        println!("{}", member)
+        info!("{}", member)
     }
 
     //Printing the list of tags as well
     let parsed = json::parse(&result);
     for member in parsed.unwrap()["tags"].members() {
-        println!("{}", member)
+        info!("{}", member)
     }
 }
 

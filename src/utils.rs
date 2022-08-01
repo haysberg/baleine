@@ -2,6 +2,8 @@ use std::env::{self, VarError};
 use std::io::{BufRead, BufReader, Error, ErrorKind};
 use std::process::{Command, Stdio};
 
+use tracing::{trace, info, debug};
+
 /// Runs a command on a specified host.
 /// Please note that it doesn't use the SSH2 crate, but instead the included ssh binary on the master machine.
 /// 
@@ -26,9 +28,8 @@ pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
     reader
         .lines()
         .filter_map(|line| line.ok())
-        .for_each(|line| println!("\r{host} : {line}", host = host, line = line));
+        .for_each(|line| trace!("{host} : {line}", host = host, line = line));
 
-    println!("\r");
     Ok(())
 }
 
@@ -42,7 +43,7 @@ pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
 /// * `host` - name of the SSH host the command will be executed on
 /// * `command` - command to be executed on the remote host
 pub fn local_command(command: String) -> Result<(), Error> {
-    println!("command : {:?}", command);
+    info!("command : {:?}", command);
 
     let stdout = Command::new("bash")
         .arg("-c")
@@ -57,9 +58,8 @@ pub fn local_command(command: String) -> Result<(), Error> {
     reader
         .lines()
         .filter_map(|line| line.ok())
-        .for_each(|line| println!("\r{line}", line = line));
-
-    println!("\r");
+        .for_each(|line| trace!("{line}", line = line));
+        
     Ok(())
 }
 
@@ -88,9 +88,7 @@ pub fn bootstrap(image: &String, nodes: &String) {
     reader
         .lines()
         .filter_map(|line| line.ok())
-        .for_each(|line| println!("{line}", line = line));
-
-    println!("\r");
+        .for_each(|line| trace!("{line}", line = line));
 }
 
 /// This function runs the rhubarbe-wait command.
@@ -110,9 +108,7 @@ pub fn rwait() {
     reader
         .lines()
         .filter_map(|line| line.ok())
-        .for_each(|line| println!("{line}", line = line));
-
-    println!("\r");
+        .for_each(|line| trace!("{line}", line = line));
 }
 
 /// This function returns the value of a provided environment variable
@@ -175,9 +171,9 @@ pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> String {
     
             //We then take the list of nodes provided by rhubarbe, and trim the \n at the end
             let mut nodes = String::from_utf8(cmd.stdout).unwrap();
-            println!("{}", nodes);
+            info!("List of nodes : {}", nodes);
             nodes.pop();
-    
+
             nodes
         }
         None => {
@@ -235,6 +231,6 @@ pub fn parse_cmd_opt(command: &Option<Vec<String>>, options: &Option<Vec<String>
         };
     }
 
-    println!("cmd : {:?}, opt : {:?}", parsed_command, parsed_options);
+    debug!("cmd : {:?}, opt : {:?}", parsed_command, parsed_options);
     (parsed_command, parsed_options)
 }

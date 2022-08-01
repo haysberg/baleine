@@ -2,6 +2,8 @@ use std::io::prelude::*;
 use crate::utils::ssh_command;
 use crate::utils::stty_sane;
 
+use tracing::{error, info, debug};
+
 /// This function stops and removes the container currently running on a node even if there is none.
 ///
 /// # Arguments
@@ -10,7 +12,7 @@ use crate::utils::stty_sane;
 pub fn destroy(node : &str){
     match ssh_command(node.to_string(), "docker stop container && docker container prune -f".to_string()){
         Ok(_) => (),
-        Err(_) => println!("{}", format!("Error : could not connect to node {node}, are you sure it is on ?", node = node))
+        Err(_) => error!("Error : could not connect to node {node}, are you sure it is on ?", node = node)
     }
 }
 
@@ -23,7 +25,7 @@ pub fn destroy_if_container(node : &str){
     if crate::utils::container_deployed(node){
         match ssh_command(node.to_string(), "docker stop container && docker container prune -f".to_string()){
             Ok(_) => (),
-            Err(_) => println!("{}", format!("Error : could not connect to node {node}, are you sure it is on ?", node = node))
+            Err(_) => error!("Error : could not connect to node {node}, are you sure it is on ?", node = node)
         }
     }
 }
@@ -54,7 +56,7 @@ pub fn entry(yes: &bool, nodes: &Option<Vec<String>>){
         //Setting up the nodes variable
         let nodes = crate::utils::list_of_nodes(nodes);
 
-        println!("Mapping : {}", "docker stop container && docker container prune -f".to_string());
+        debug!("Mapping : {}", "docker stop container && docker container prune -f".to_string());
         
         //we create threads and destroy the nodes
         match crossbeam::scope(|scope| {
@@ -64,14 +66,14 @@ pub fn entry(yes: &bool, nodes: &Option<Vec<String>>){
                 });
             }
         }) {
-            Ok(_) => println!("Destruction complete !"),
-            Err(_) => println!("ERROR DURING DESTRUCTION"),
+            Ok(_) => info!("Destruction complete !"),
+            Err(_) => error!("ERROR DURING DESTRUCTION"),
         };
 
         stty_sane();
     }
     //If the user changes his mind, we simply put a message to tell him not to worry.
     else {
-        println!("\nAborting.")
+        info!("\nAborting.")
     }
 }

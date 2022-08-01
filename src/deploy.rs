@@ -42,7 +42,7 @@ pub fn deploy(
 
     //We run the SSH command
     match ssh_command(node.to_string(), cmd) {
-        Ok(_) => (),
+        Ok(_) => info!("Succesfully deployed node {node}", node = node.to_string()),
         Err(_) => error!("Could not connect using SSH to {node}, is it on ?", node = node),
     }
 }

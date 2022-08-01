@@ -1,5 +1,6 @@
 use crate::utils::{env_var, ssh_command};
 use std::process::Command;
+use tracing::error;
 
 extern crate dotenv;
 
@@ -21,10 +22,7 @@ pub fn save(name: &String, node: &str) {
     //We display an error message
     match ssh_command(node.to_string(), cmd) {
         Ok(_) => (),
-        Err(_) => println!(
-            "{}",
-            format!("Could not connect to {node}, is it on ?", node = node)
-        ),
+        Err(_) => error!("Could not connect to {node}, is it on ?", node = node),
     }
 }
 
