@@ -38,7 +38,6 @@ pub fn local_command(command: String) -> Result<(), Error> {
     Command::new("bash")
         .arg("-c")
         .arg(command)
-        .stdout(Stdio::piped())
         .spawn();
         
     Ok(())
@@ -95,8 +94,6 @@ pub fn container_deployed(host: &str) -> bool {
         .arg(format!("root@{host}", host = host))
         .arg("-t")
         .arg("docker container ls -a | wc -l")
-        // Tell the OS to record the command's output
-        .stdout(Stdio::piped())
         // execute the command, wait for it to complete, then capture the output
         .output()
         // Blow up if the OS was unable to start the program
