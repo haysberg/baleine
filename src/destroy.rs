@@ -1,6 +1,5 @@
 use std::io::prelude::*;
 use crate::utils::ssh_command;
-use crate::utils::stty_sane;
 
 use tracing::{error, info, debug};
 
@@ -69,8 +68,6 @@ pub fn entry(yes: &bool, nodes: &Option<Vec<String>>){
             Ok(_) => info!("Destruction complete !"),
             Err(_) => error!("ERROR DURING DESTRUCTION"),
         };
-
-        stty_sane();
     }
     //If the user changes his mind, we simply put a message to tell him not to worry.
     else {

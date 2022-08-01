@@ -1,3 +1,5 @@
+use tracing::error;
+
 use crate::utils::{env_var, local_command};
 
 extern crate dotenv;
@@ -21,7 +23,10 @@ pub fn build(file: &Option<String>, url: &Option<String>, tags: &Vec<String>) {
 
     let push_args : String = tags.iter().map(|x| format!(" && docker push localhost:{port}/{x} && docker push {repo_url}/{x}")).collect();
 
-    local_command(format!("{cmd}{push_args}"));
+    match local_command(format!("{cmd}{push_args}")){
+        Ok(_) => (),
+        Err(_) => error!("Error while running command {}{}", cmd, push_args)
+    }
 }
 
 /// The entry() function works as an entrypoint that does a bit of parsing as well as other checks depending on the function it calls later

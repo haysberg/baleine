@@ -1,5 +1,4 @@
 use crate::utils::ssh_command;
-use crate::utils::stty_sane;
 use crate::utils::env_var;
 use crossbeam;
 use tracing::info;
@@ -113,7 +112,4 @@ pub fn entry(
             Err(_) => error!("ERROR DURING DEPLOYMENT"),
         };
     }
-
-    //Cleaning up the terminal output in case the terminal is botched.
-    stty_sane();
 }

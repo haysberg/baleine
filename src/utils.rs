@@ -188,15 +188,6 @@ pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> String {
     }
 }
 
-/// This command sanitizes the terminal.
-/// We had weird terminal issues when deploying a large number of machines before.
-/// Using this function at the end of your code should help.
-pub fn stty_sane() {
-    Command::new("/usr/bin/stty").arg("sane").output().expect("");
-    Command::new("/usr/bin/echo").arg("").output().expect("");
-}
-
-
 pub fn parse_cmd_opt(command: &Option<Vec<String>>, options: &Option<Vec<String>>) -> (Option<String>, Option<String>) {
     let mut parsed_options : Option<String> = None;
     let mut parsed = false;
