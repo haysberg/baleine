@@ -1,6 +1,5 @@
 use crate::utils::ssh_command;
 use crate::utils::env_var;
-use crossbeam;
 use tracing::info;
 use tracing::instrument;
 use tracing::{trace, error};
@@ -90,6 +89,6 @@ pub fn entry(
 
     if !nodes.is_empty() {
         //We then create a thread for each node, running the deploy command through SSH
-        nodes.par_iter().map(|x| deploy(image, options, command, &x));
+        nodes.par_iter().for_each(|x| deploy(image, options, command, &x));
     }
 }

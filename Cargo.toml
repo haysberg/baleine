@@ -18,8 +18,6 @@ dotenv = "*"
 reqwest = {version = "*", features = ["blocking", "json"]}
 # json is used to parse the Docker API Json responses
 json = "*"
-# crossbeam is used to enable multi-threading when sending SSH commands
-crossbeam = "*"
 # url is used in the build feature to check if we provide a URL or a file path
 url = "*"
 # tempfile
@@ -27,5 +25,7 @@ tempfile = "*"
 # we use tracing to handle logs
 tracing = "*"
 tracing-subscriber = "*"
-
+# rayon is used to parrallelize deployment
 rayon = "1.5"
+# openssh for remote connection
+openssh = "*"

@@ -1,6 +1,7 @@
 use std::io::prelude::*;
 use crate::utils::ssh_command;
 
+use rayon::prelude::*;
 use tracing::{error, info, debug, instrument};
 
 /// This function stops and removes the container currently running on a node even if there is none.
@@ -61,16 +62,7 @@ pub fn entry(yes: &bool, nodes: &Option<Vec<String>>){
         debug!("Mapping : {}", "docker stop container && docker container prune -f".to_string());
         
         //we create threads and destroy the nodes
-        match crossbeam::scope(|scope| {
-            for node in nodes {
-                scope.spawn(move |_| {
-                    destroy(&node);
-                });
-            }
-        }) {
-            Ok(_) => info!("Destruction complete !"),
-            Err(_) => error!("ERROR DURING DESTRUCTION"),
-        };
+        nodes.par_iter().for_each(|x| destroy(&x));
     }
     //If the user changes his mind, we simply put a message to tell him not to worry.
     else {
