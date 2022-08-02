@@ -29,3 +29,5 @@ tracing-subscriber = "*"
 rayon = "1.5"
 # openssh for remote connection
 openssh = "*"
+
+futures="*"

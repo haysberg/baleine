@@ -2,7 +2,10 @@ use std::env::{self, VarError};
 use std::io::{BufRead, BufReader, Error, ErrorKind};
 use std::process::{Command, Stdio};
 
-use tracing::{trace, info, debug, instrument};
+use openssh::{Session, KnownHosts};
+use tracing::{trace, info, debug, instrument, error};
+
+use futures::executor::block_on;
 
 /// Runs a command on a specified host.
 /// Please note that it doesn't use the SSH2 crate, but instead the included ssh binary on the master machine.
@@ -13,13 +16,16 @@ use tracing::{trace, info, debug, instrument};
 ///
 /// * `host` - name of the SSH host the command will be executed on
 /// * `command` - command to be executed on the remote host
-#[instrument]
 pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
-    Command::new("ssh")
-        .arg(format!("root@{host}", host = host))
-        .arg("-t")
-        .arg(command)
-        .spawn();
+    match block_on(Session::connect(format!("root@{}", host), KnownHosts::Accept)){
+        Ok(s) => match block_on(s.shell(command).output()){
+            Ok(_) => (),
+            Err(e) => error!("Could not run command on host {}, error : {}", host, e.to_string())
+        },
+        Err(e) => {
+            error!("Could not connect to host {}, error : {error}", host, error = e)
+        }
+    }    
 
     Ok(())
 }
