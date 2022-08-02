@@ -22,17 +22,28 @@ pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
     let mut sess = Session::new().unwrap();
     sess.set_tcp_stream(tcp);
     sess.handshake().unwrap();
-    sess.userauth_agent("root").unwrap();
+    sess.agent().unwrap().list_identities();
+    for id in sess.agent().unwrap().identities().unwrap(){
+        match sess.agent().unwrap().userauth("root", &id){
+            Ok(_) => {
+                let mut channel = sess.channel_session().unwrap();
+                channel.exec(&command).unwrap();
+                let mut s = String::new();
+                channel.read_to_string(&mut s).unwrap();
+                println!("{}", s);
+                channel.wait_close();
+                println!("{}", channel.exit_status().unwrap());
+            
+                return Ok(())
+            },
+            Err(_) => ()
+        }
+    }
 
-    let mut channel = sess.channel_session().unwrap();
-    channel.exec(&command).unwrap();
-    let mut s = String::new();
-    channel.read_to_string(&mut s).unwrap();
-    println!("{}", s);
-    channel.wait_close();
-    println!("{}", channel.exit_status().unwrap());
+    return Err(Error::new(ErrorKind::Other, "oh no!"));
+    //sess.userauth_agent("root").unwrap();
 
-    Ok(())
+
 }
 
 /// Runs a command on a specified host.
