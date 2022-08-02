@@ -27,7 +27,5 @@ tracing = "*"
 tracing-subscriber = "*"
 # rayon is used to parrallelize deployment
 rayon = "1.5"
-# openssh for remote connection
-openssh = "*"
-
-futures="*"
+# ssh2 for remote connections
+ssh2 = "*"

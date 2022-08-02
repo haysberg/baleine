@@ -1,11 +1,11 @@
 use std::env::{self, VarError};
-use std::io::{BufRead, BufReader, Error, ErrorKind};
+use std::io::{BufRead, BufReader, Error, ErrorKind, Read};
+use std::net::TcpStream;
 use std::process::{Command, Stdio};
 
-use openssh::{Session, KnownHosts};
+use ssh2::Session;
 use tracing::{trace, info, debug, instrument, error};
 
-use futures::executor::block_on;
 
 /// Runs a command on a specified host.
 /// Please note that it doesn't use the SSH2 crate, but instead the included ssh binary on the master machine.
@@ -17,15 +17,20 @@ use futures::executor::block_on;
 /// * `host` - name of the SSH host the command will be executed on
 /// * `command` - command to be executed on the remote host
 pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
-    match block_on(Session::connect(format!("root@{}", host), KnownHosts::Accept)){
-        Ok(s) => match block_on(s.shell(command).output()){
-            Ok(_) => (),
-            Err(e) => error!("Could not run command on host {}, error : {}", host, e.to_string())
-        },
-        Err(e) => {
-            error!("Could not connect to host {}, error : {error}", host, error = e)
-        }
-    }    
+    // Connect to the local SSH server
+    let tcp = TcpStream::connect(format!("{}:22", host)).unwrap();
+    let mut sess = Session::new().unwrap();
+    sess.set_tcp_stream(tcp);
+    sess.handshake().unwrap();
+    sess.userauth_agent("root").unwrap();
+
+    let mut channel = sess.channel_session().unwrap();
+    channel.exec(&command).unwrap();
+    let mut s = String::new();
+    channel.read_to_string(&mut s).unwrap();
+    println!("{}", s);
+    channel.wait_close();
+    println!("{}", channel.exit_status().unwrap());
 
     Ok(())
 }
