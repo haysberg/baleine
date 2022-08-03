@@ -2,10 +2,7 @@ use crate::utils::env_var;
 use futures::future::join_all;
 use openssh::KnownHosts;
 use openssh::Session;
-use tracing::info;
-use tracing::instrument;
-use tracing::warn;
-use tracing::{error};
+use tracing::{error, info, warn};
 
 
 /// This function deploys a Docker container on a node given in input.
@@ -15,7 +12,6 @@ use tracing::{error};
 /// * `image` - Reference to a String. Name of the Docker image you are deploying.
 /// * `options` - A list of string containing the different options given by the user. This is an Option object, so if no option has been given, it is going to be a None object.
 /// * `command` - A list of string containing the command and flags given by the user. This is an Option object, so if no command has been given, it is going to be a None object.
-#[instrument]
 pub async fn deploy(
     image: &String,
     options: &Option<Vec<String>>,

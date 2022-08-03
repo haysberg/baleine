@@ -1,14 +1,14 @@
 use std::io::prelude::*;
 use futures::future::join_all;
 use openssh::{Session, KnownHosts};
-use tracing::{error, info, instrument};
+use tracing::{error, info, };
 
 /// This function stops and removes the container currently running on a node even if there is none.
 ///
 /// # Arguments
 ///
 /// * `node` - The node you wish to remove the Docker container currently running on
-#[instrument]
+
 pub async fn destroy(node : &str){
     let session = Session::connect(format!("ssh://root@{node}:22"), KnownHosts::Accept)
     .await
@@ -38,7 +38,7 @@ pub async fn destroy(node : &str){
 ///
 /// * `nodes` - The list of nodes you wish to remove the Docker containers currently running on
 /// * `yes` - Does not ask for user input to delete the container
-#[instrument]
+
 pub async fn entry(yes: &bool, nodes: &Option<Vec<String>>){
 
     //We deal with the "yes" flag, which can be triggered with -y or --yes (cf args.yaml)

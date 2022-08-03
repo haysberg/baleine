@@ -1,7 +1,7 @@
 use crate::utils::{env_var};
 use std::process::Command;
 use openssh::{Session, KnownHosts};
-use tracing::{error, instrument, info, warn};
+use tracing::{error, info, warn};
 
 extern crate dotenv;
 
@@ -11,7 +11,7 @@ extern crate dotenv;
 ///
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
-#[instrument]
+
 pub async fn save(name: &String, node: &str) {
     //Here, we create a new image from the running container on the node, and push it to the
     //remote registry.
@@ -55,7 +55,7 @@ pub async fn save(name: &String, node: &str) {
 ///
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
-#[instrument]
+
 pub async fn entry(name: &String, node: &String) {
     //We then run rhubarbe nodes with the nodes.
     //This is a prerequisite to save the nodes

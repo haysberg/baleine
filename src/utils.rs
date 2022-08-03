@@ -1,9 +1,7 @@
 use std::env::{self, VarError};
 use std::io::{Error};
 use std::process::{Command};
-use openssh::{Session, KnownHosts};
-use tracing::{info, debug, instrument, error};
-
+use tracing::{info, debug};
 
 /// Runs a command on a specified host.
 /// Please note that it doesn't use the SSH2 crate, but instead the included ssh binary on the master machine.
@@ -14,42 +12,7 @@ use tracing::{info, debug, instrument, error};
 ///
 /// * `host` - name of the SSH host the command will be executed on
 /// * `command` - command to be executed on the remote host
-#[instrument]
-pub async fn ssh_command(host: String, commands: Vec<String>) -> Result<(), Error> {
-    let session = Session::connect(format!("ssh://root@{host}:22"), KnownHosts::Accept)
-    .await
-    .expect(&format!("Could not establish session to host {}", host).as_str());
 
-    for command in commands {
-        debug!(command);
-        //We separate the command and arguments
-        let mut iter = command.split(" ");
-        let binary = iter.nth(0).unwrap();
-        let arguments : String = iter.map(|x| format!(" {}", x)).collect();
-        debug!(arguments);
-        //We run the command
-        let output = session.command(binary).raw_arg(arguments).output().await.unwrap();
-        match output.status.success() {
-            true => (),
-            false => error!("Could not deploy host {}", host)
-        }
-    }
-    
-    session.close().await.unwrap();
-
-    Ok(())
-}
-
-/// Runs a command on a specified host.
-/// Please note that it doesn't use the SSH2 crate, but instead the included ssh binary on the master machine.
-/// 
-/// The output is printed in real time and is piped to the current terminal stdout.
-///
-/// # Arguments
-///
-/// * `host` - name of the SSH host the command will be executed on
-/// * `command` - command to be executed on the remote host
-#[instrument]
 pub async fn local_command(command: String) -> Result<(), Error> {
     info!("command : {:?}", command);
 
@@ -72,7 +35,7 @@ pub async fn local_command(command: String) -> Result<(), Error> {
 ///
 /// * `image` - the .ndz image to deploy
 /// * `nodes` - list of slave nodes affected
-#[instrument]
+
 pub async fn bootstrap(image: &String, nodes: &Vec<String>) -> Result<(), Error> {
     let tmp_nodes : String = nodes.iter().map(|x| format!("{} ", x)).collect();
     //Run the imaging through rhubarbe
@@ -90,7 +53,7 @@ pub async fn bootstrap(image: &String, nodes: &Vec<String>) -> Result<(), Error>
 /// This is important because if we don't do this, we send SSH commands to a machine that is not ready yet.
 /// 
 /// So if we don't, the program fails and crashes.
-#[instrument]
+
 pub async fn rwait() -> Result<(), Error> {
     //rwait
     match Command::new("/usr/local/bin/rhubarbe-wait").spawn(){
@@ -104,33 +67,12 @@ pub async fn rwait() -> Result<(), Error> {
 /// # Arguments
 ///
 /// * `key` - The environment variable we are looking for
-#[instrument]
+
 pub fn env_var(key: &str) -> Result<String, VarError> {
     match env::var(key) {
         Ok(_) => Ok(env::var(key).unwrap()),
         Err(e) => Err(e)
     }
-}
-
-/// Checks if a container is currently deployed on a host
-///
-/// # Arguments
-///
-/// * `host` - the slave node we want to check
-#[instrument]
-pub async fn container_deployed(host: &str) -> bool {
-    let output = Command::new("ssh")
-        .arg(format!("root@{host}", host = host))
-        .arg("-t")
-        .arg("docker container ls -a | wc -l")
-        // execute the command, wait for it to complete, then capture the output
-        .output()
-        // Blow up if the OS was unable to start the program
-        .unwrap();
-
-    // extract the raw bytes that we captured and interpret them as a string
-    let stdout = String::from_utf8(output.stdout).unwrap();
-    return !stdout.contains("1\n");
 }
 
 /// Takes in a list of strings sent from the CLI
@@ -144,7 +86,7 @@ pub async fn container_deployed(host: &str) -> bool {
 /// # Arguments
 ///
 /// * `nodes` - the list of nodes we are sending
-#[instrument]
+
 pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> Vec<String> {
     return match nodes {
         Some(nodes) => {
@@ -175,7 +117,7 @@ pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> Vec<String> {
     }
 }
 
-#[instrument]
+
 pub fn parse_cmd_opt(command: &Option<Vec<String>>, options: &Option<Vec<String>>) -> (Option<String>, Option<String>) {
     let mut parsed_options : Option<String> = None;
     let mut parsed = false;

@@ -1,5 +1,4 @@
-use tracing::{error, instrument, warn};
-
+use tracing::{error, warn};
 use crate::utils::{env_var, local_command};
 
 extern crate dotenv;
@@ -10,7 +9,6 @@ extern crate dotenv;
 ///
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
-#[instrument]
 pub async fn build(file: &Option<String>, url: &Option<String>, tags: &Vec<String>) {
     let port = env_var("SAVE_PORT").unwrap_or({
         warn!("SAVE_PORT not set in config file, using 80 by default.");
@@ -45,7 +43,7 @@ pub async fn build(file: &Option<String>, url: &Option<String>, tags: &Vec<Strin
 ///
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
-#[instrument]
+
 pub async fn entry(file: &Option<String>, url: &Option<String>, tags: &Vec<String>) {
     build(file, url, tags).await;
 }

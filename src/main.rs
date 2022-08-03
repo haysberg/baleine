@@ -12,14 +12,25 @@ extern crate dotenv;
 use std::path::Path;
 use crate::args::{EntryArgs, Action};
 use clap::{Parser};
-use tracing::{warn, instrument};
+use tracing::{warn, };
 use tracing_subscriber;
+use tracing_subscriber::fmt;
 
-#[instrument]
 #[tokio::main]
 async fn main() {
+    let format = fmt::format()
+    .with_level(true)
+    .with_timer(())
+    .with_thread_ids(false)
+    .with_source_location(false)
+    .with_target(false)
+    .with_line_number(false)
+    .compact();
+
     //Initializing the log display
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+    .event_format(format)
+    .init();
 
     //Loading the configuration file.
     //Keep in mind that these variables can be overwritten as they are environment variables.
