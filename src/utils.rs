@@ -53,12 +53,14 @@ pub async fn ssh_command(host: String, commands: Vec<String>) -> Result<(), Erro
 pub async fn local_command(command: String) -> Result<(), Error> {
     info!("command : {:?}", command);
 
-    Command::new("bash")
+    match Command::new("bash")
         .arg("-c")
         .arg(command)
-        .spawn();
-        
-    Ok(())
+        .spawn() {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e)
+        }
+
 }
 
 /// This function deploys the given disk image (.ndz) on the slave node.
@@ -71,14 +73,17 @@ pub async fn local_command(command: String) -> Result<(), Error> {
 /// * `image` - the .ndz image to deploy
 /// * `nodes` - list of slave nodes affected
 #[instrument]
-pub async fn bootstrap(image: &String, nodes: &Vec<String>) {
+pub async fn bootstrap(image: &String, nodes: &Vec<String>) -> Result<(), Error> {
     let tmp_nodes : String = nodes.iter().map(|x| format!("{} ", x)).collect();
     //Run the imaging through rhubarbe
-    Command::new("/usr/local/bin/rhubarbe-load")
+    match Command::new("/usr/local/bin/rhubarbe-load")
         .arg("-i")
         .arg(image)
         .arg(tmp_nodes)
-        .spawn();
+        .spawn(){
+            Ok(_) => Ok(()),
+            Err(e) => Err(e)
+        }
 }
 
 /// This function runs the rhubarbe-wait command.
@@ -86,9 +91,12 @@ pub async fn bootstrap(image: &String, nodes: &Vec<String>) {
 /// 
 /// So if we don't, the program fails and crashes.
 #[instrument]
-pub async fn rwait() {
+pub async fn rwait() -> Result<(), Error> {
     //rwait
-    Command::new("/usr/local/bin/rhubarbe-wait").spawn();
+    match Command::new("/usr/local/bin/rhubarbe-wait").spawn(){
+        Ok(_) => Ok(()),
+        Err(e) => Err(e)
+    }
 }
 
 /// This function returns the value of a provided environment variable
@@ -99,11 +107,9 @@ pub async fn rwait() {
 #[instrument]
 pub fn env_var(key: &str) -> Result<String, VarError> {
     match env::var(key) {
-        Ok(_) => (),
-        Err(_) => (),
-    };
-
-    return env::var(key);
+        Ok(_) => Ok(env::var(key).unwrap()),
+        Err(e) => Err(e)
+    }
 }
 
 /// Checks if a container is currently deployed on a host
