@@ -3,6 +3,8 @@ use futures::future::join_all;
 use openssh::KnownHosts;
 use openssh::Session;
 use tracing::info;
+use tracing::instrument;
+use tracing::warn;
 use tracing::{error};
 
 
@@ -13,6 +15,7 @@ use tracing::{error};
 /// * `image` - Reference to a String. Name of the Docker image you are deploying.
 /// * `options` - A list of string containing the different options given by the user. This is an Option object, so if no option has been given, it is going to be a None object.
 /// * `command` - A list of string containing the command and flags given by the user. This is an Option object, so if no command has been given, it is going to be a None object.
+#[instrument]
 pub async fn deploy(
     image: &String,
     options: &Option<Vec<String>>,
@@ -33,7 +36,10 @@ pub async fn deploy(
             None => format!(""),
             Some(content) => content
         },
-        dns = env_var("DNS_ADDR").unwrap_or("192.168.3.100".to_string())
+        dns = env_var("DNS_ADDR").unwrap_or({
+            warn!("DNS_ADDR not set in config file, using 192.168.3.100 by default.");
+            "192.168.3.100".to_string()
+        })
     );
 
     let session = Session::connect(format!("ssh://root@{node}:22"), KnownHosts::Accept)

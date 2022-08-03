@@ -1,4 +1,4 @@
-use tracing::{error, instrument};
+use tracing::{error, instrument, warn};
 
 use crate::utils::{env_var, local_command};
 
@@ -12,9 +12,18 @@ extern crate dotenv;
 /// * `node` - target slave node that will be saved
 #[instrument]
 pub async fn build(file: &Option<String>, url: &Option<String>, tags: &Vec<String>) {
-    let port = env_var("SAVE_PORT").unwrap_or("80".to_string());
+    let port = env_var("SAVE_PORT").unwrap_or({
+        warn!("SAVE_PORT not set in config file, using 80 by default.");
+        "80".to_string()
+    });
+
     let primary_tag = tags.get(0).unwrap();
-    let repo_url = env_var("SAVE_URL").unwrap_or("faraday.repo".to_string());
+
+    let repo_url = env_var("SAVE_URL").unwrap_or({
+        warn!("SAVE_URL not set in config file, using faraday.repo by default.");
+        "faraday.repo".to_string()
+    });
+
     let tag_args : String = tags.iter().map(|x| format!(" -t localhost:{port}/{x} -t {repo_url}/{x}")).collect();
 
     let cmd : String = match url{

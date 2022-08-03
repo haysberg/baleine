@@ -7,3 +7,4 @@
 - Fixed a bug where the terminal would get broken when multiple machines were deployed
 - Now using the openssh crate for managing machine instead of spawning a local process which speeds up deployment
 - Way better handling of errors during deployment, giving more information when something fails
+- Trimmed down the number of used libraries

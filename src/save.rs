@@ -1,7 +1,7 @@
 use crate::utils::{env_var};
 use std::process::Command;
 use openssh::{Session, KnownHosts};
-use tracing::{error, instrument, info};
+use tracing::{error, instrument, info, warn};
 
 extern crate dotenv;
 
@@ -13,13 +13,13 @@ extern crate dotenv;
 /// * `node` - target slave node that will be saved
 #[instrument]
 pub async fn save(name: &String, node: &str) {
-    //We create the string for the command that we are going to execute remotely.
     //Here, we create a new image from the running container on the node, and push it to the
     //remote registry.
     
-    //let cmd = format!("docker commit container {image_name} && docker image tag {image_name} {repository}/{image_name} && docker push --all-tags {repository}/{image_name}",
-    
-    let repo = env_var("SAVE_URL").unwrap_or("faraday.repo".to_string());
+    let repo = env_var("SAVE_URL").unwrap_or({
+        warn!("SAVE_URL not set in config file, using faraday.repo by default.");
+        "faraday.repo".to_string()
+    });
 
     let session = Session::connect(format!("ssh://root@{node}:22"), KnownHosts::Accept)
     .await
