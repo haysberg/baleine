@@ -1,5 +1,7 @@
-use crate::utils::{env_var, ssh_command};
+use crate::utils::{env_var};
 use std::process::Command;
+use openssh::{Session, KnownHosts};
+use tracing::{error, info, warn};
 
 extern crate dotenv;
 
@@ -9,23 +11,42 @@ extern crate dotenv;
 ///
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
-pub fn save(name: &String, node: &str) {
-    //We create the string for the command that we are going to execute remotely.
+
+pub async fn save(name: &String, node: &str) {
     //Here, we create a new image from the running container on the node, and push it to the
     //remote registry.
-    let cmd = format!("docker commit container {image_name} && docker image tag {image_name} {repository}/{image_name} && docker push --all-tags {repository}/{image_name}",
-    repository = env_var("SAVE_URL").unwrap_or("faraday.repo".to_string()),
-    image_name = name);
+    
+    let repo = env_var("SAVE_URL").unwrap_or({
+        warn!("SAVE_URL not set in config file, using faraday.repo by default.");
+        "faraday.repo".to_string()
+    });
 
-    //We run the docker commit container command on the node. If the ssh_command() function doesn't work
-    //We display an error message
-    match ssh_command(node.to_string(), cmd) {
-        Ok(_) => (),
-        Err(_) => println!(
-            "{}",
-            format!("Could not connect to {node}, is it on ?", node = node)
-        ),
+    let session = Session::connect(format!("ssh://root@{node}:22"), KnownHosts::Accept)
+    .await
+    .expect(&format!("Could not establish session to host {}", node).as_str());
+
+    //We save the running container as an image
+    let output = session.command("docker").raw_arg(format!("commit container {name}")).output().await.unwrap();
+    match output.status.success() {
+        true => info!("Successfully committed container {}", name),
+        false => error!("Could not commit container on {}, is there one present ?", node)
     }
+
+    //We tag the created image
+    let output = session.command("docker").raw_arg(format!("image tag {name} {repo}/{name}")).output().await.unwrap();
+    match output.status.success() {
+        true => info!("Successfully tagged container as {repo}/{name} on {}", node, repo = repo, name = name),
+        false => error!("Could not tag image on {}", node)
+    }
+
+    //We push the image to the R2Lab Docker repository
+    let output = session.command("docker").raw_arg(format!("push --all-tags {repo}/{name}")).output().await.unwrap();
+    match output.status.success() {
+        true => info!("Successfully pushed {repo}/{name}", repo = repo, name = name),
+        false => error!("Failed to push {repo}/{name}, is the repository reachable ?", repo = repo, name = name)
+    }
+
+    session.close().await.unwrap();
 }
 
 /// The entry() function works as an entrypoint that does a bit of parsing as well as other checks depending on the function it calls later
@@ -34,7 +55,8 @@ pub fn save(name: &String, node: &str) {
 ///
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
-pub fn entry(name: &String, node: &String) {
+
+pub async fn entry(name: &String, node: &String) {
     //We then run rhubarbe nodes with the nodes.
     //This is a prerequisite to save the nodes
     let output = Command::new("rhubarbe")
@@ -51,6 +73,6 @@ pub fn entry(name: &String, node: &String) {
 
     //for each of the nodes, we run the save() function
     for node in nodes {
-        save(name, node);
+        save(name, node).await;
     }
 }

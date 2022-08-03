@@ -1,6 +1,6 @@
 [package]
 name = "baleine"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["Téo Haÿs"]
 edition = "2018"
 
@@ -15,12 +15,14 @@ clap = {version = "*", features = ["derive", "unicode", "cargo"]}
 # dotenv is used to load parameters from files or environment variables
 dotenv = "*"
 # reqwest is used to call the Docker Registry API to get a list of images
-reqwest = {version = "*", features = ["blocking", "json"]}
+reqwest = {version = "*", features = ["blocking"]}
 # json is used to parse the Docker API Json responses
 json = "*"
-# crossbeam is used to enable multi-threading when sending SSH commands
-crossbeam = "*"
-# url is used in the build feature to check if we provide a URL or a file path
-url = "*"
-# tempfile
-tempfile = "*"
+# we use tracing to handle logs
+tracing = "*"
+tracing-subscriber = "*"
+# ssh2 for remote connections
+openssh = "*"
+# Tokio and futures are used for async functions
+tokio = "*"
+futures = "*"

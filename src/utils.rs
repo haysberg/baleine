@@ -1,6 +1,7 @@
 use std::env::{self, VarError};
-use std::io::{BufRead, BufReader, Error, ErrorKind};
-use std::process::{Command, Stdio};
+use std::io::{Error};
+use std::process::{Command};
+use tracing::{info, debug};
 
 /// Runs a command on a specified host.
 /// Please note that it doesn't use the SSH2 crate, but instead the included ssh binary on the master machine.
@@ -11,56 +12,18 @@ use std::process::{Command, Stdio};
 ///
 /// * `host` - name of the SSH host the command will be executed on
 /// * `command` - command to be executed on the remote host
-pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
-    let stdout = Command::new("ssh")
-        .arg(format!("root@{host}", host = host))
-        .arg("-t")
-        .arg(command)
-        .stdout(Stdio::piped())
-        .spawn()?
-        .stdout
-        .ok_or_else(|| Error::new(ErrorKind::Other, "Could not capture standard output."))?;
 
-    let reader = BufReader::new(stdout);
+pub async fn local_command(command: String) -> Result<(), Error> {
+    info!("command : {:?}", command);
 
-    reader
-        .lines()
-        .filter_map(|line| line.ok())
-        .for_each(|line| println!("\r{host} : {line}", host = host, line = line));
-
-    println!("\r");
-    Ok(())
-}
-
-/// Runs a command on a specified host.
-/// Please note that it doesn't use the SSH2 crate, but instead the included ssh binary on the master machine.
-/// 
-/// The output is printed in real time and is piped to the current terminal stdout.
-///
-/// # Arguments
-///
-/// * `host` - name of the SSH host the command will be executed on
-/// * `command` - command to be executed on the remote host
-pub fn local_command(command: String) -> Result<(), Error> {
-    println!("command : {:?}", command);
-
-    let stdout = Command::new("bash")
+    match Command::new("bash")
         .arg("-c")
         .arg(command)
-        .stdout(Stdio::piped())
-        .spawn()?
-        .stdout
-        .ok_or_else(|| Error::new(ErrorKind::Other, "Could not capture standard output."))?;
+        .spawn() {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e)
+        }
 
-    let reader = BufReader::new(stdout);
-
-    reader
-        .lines()
-        .filter_map(|line| line.ok())
-        .for_each(|line| println!("\r{line}", line = line));
-
-    println!("\r");
-    Ok(())
 }
 
 /// This function deploys the given disk image (.ndz) on the slave node.
@@ -72,47 +35,31 @@ pub fn local_command(command: String) -> Result<(), Error> {
 ///
 /// * `image` - the .ndz image to deploy
 /// * `nodes` - list of slave nodes affected
-pub fn bootstrap(image: &String, nodes: &String) {
+
+pub async fn bootstrap(image: &String, nodes: &Vec<String>) -> Result<(), Error> {
+    let tmp_nodes : String = nodes.iter().map(|x| format!("{} ", x)).collect();
     //Run the imaging through rhubarbe
-    let stdout = Command::new("/usr/local/bin/rhubarbe-load")
+    match Command::new("/usr/local/bin/rhubarbe-load")
         .arg("-i")
         .arg(image)
-        .arg(nodes)
-        .stdout(Stdio::piped())
-        .spawn()
-        .unwrap()
-        .stdout;
-
-    let reader = BufReader::new(stdout.unwrap());
-
-    reader
-        .lines()
-        .filter_map(|line| line.ok())
-        .for_each(|line| println!("{line}", line = line));
-
-    println!("\r");
+        .arg(tmp_nodes)
+        .spawn(){
+            Ok(_) => Ok(()),
+            Err(e) => Err(e)
+        }
 }
 
 /// This function runs the rhubarbe-wait command.
 /// This is important because if we don't do this, we send SSH commands to a machine that is not ready yet.
 /// 
 /// So if we don't, the program fails and crashes.
-pub fn rwait() {
+
+pub async fn rwait() -> Result<(), Error> {
     //rwait
-    let stdout = Command::new("/usr/local/bin/rhubarbe-wait")
-        .stdout(Stdio::piped())
-        .spawn()
-        .unwrap()
-        .stdout;
-
-    let reader = BufReader::new(stdout.unwrap());
-
-    reader
-        .lines()
-        .filter_map(|line| line.ok())
-        .for_each(|line| println!("{line}", line = line));
-
-    println!("\r");
+    match Command::new("/usr/local/bin/rhubarbe-wait").spawn(){
+        Ok(_) => Ok(()),
+        Err(e) => Err(e)
+    }
 }
 
 /// This function returns the value of a provided environment variable
@@ -120,35 +67,12 @@ pub fn rwait() {
 /// # Arguments
 ///
 /// * `key` - The environment variable we are looking for
+
 pub fn env_var(key: &str) -> Result<String, VarError> {
     match env::var(key) {
-        Ok(_) => (),
-        Err(_) => (),
-    };
-
-    return env::var(key);
-}
-
-/// Checks if a container is currently deployed on a host
-///
-/// # Arguments
-///
-/// * `host` - the slave node we want to check
-pub fn container_deployed(host: &str) -> bool {
-    let output = Command::new("ssh")
-        .arg(format!("root@{host}", host = host))
-        .arg("-t")
-        .arg("docker container ls -a | wc -l")
-        // Tell the OS to record the command's output
-        .stdout(Stdio::piped())
-        // execute the command, wait for it to complete, then capture the output
-        .output()
-        // Blow up if the OS was unable to start the program
-        .unwrap();
-
-    // extract the raw bytes that we captured and interpret them as a string
-    let stdout = String::from_utf8(output.stdout).unwrap();
-    return !stdout.contains("1\n");
+        Ok(_) => Ok(env::var(key).unwrap()),
+        Err(e) => Err(e)
+    }
 }
 
 /// Takes in a list of strings sent from the CLI
@@ -162,10 +86,11 @@ pub fn container_deployed(host: &str) -> bool {
 /// # Arguments
 ///
 /// * `nodes` - the list of nodes we are sending
-pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> String {
+
+pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> Vec<String> {
     return match nodes {
         Some(nodes) => {
-            let nodes_arg : Vec<_> = nodes.iter().map(|r| format!("{} ", r)).collect();
+            let nodes_arg : Vec<_> = nodes.clone().iter().map(|r| format!("{} ", r)).collect();
             //We run the "rhubarbe nodes" command to get a list of nodes
             //Basically we don't do the automatic parsing here.
             let cmd = Command::new("/usr/local/bin/rhubarbe-nodes")
@@ -175,29 +100,21 @@ pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> String {
     
             //We then take the list of nodes provided by rhubarbe, and trim the \n at the end
             let mut nodes = String::from_utf8(cmd.stdout).unwrap();
-            println!("{}", nodes);
+            info!("List of nodes : {}", nodes);
             nodes.pop();
-    
-            nodes
+
+            nodes.split(" ").map(|x| x.to_string()).collect()
         }
         None => {
             match env::var("NODES") {
                 Ok(value) => {
-                    if value != "" { value }
+                    if value != "" { vec!(value.split(" ").map(|x| x.to_string()).collect()) }
                     else { panic!("$NODES is not set, and you didn't provide a list of nodes. Please use the -n option.") }
                 }
                 Err(_) => panic!("$NODES is not set, and you didn't provide a list of nodes. Please use the -n option.")
             } 
         }
     }
-}
-
-/// This command sanitizes the terminal.
-/// We had weird terminal issues when deploying a large number of machines before.
-/// Using this function at the end of your code should help.
-pub fn stty_sane() {
-    Command::new("/usr/bin/stty").arg("sane").output().expect("");
-    Command::new("/usr/bin/echo").arg("").output().expect("");
 }
 
 
@@ -235,6 +152,6 @@ pub fn parse_cmd_opt(command: &Option<Vec<String>>, options: &Option<Vec<String>
         };
     }
 
-    println!("cmd : {:?}, opt : {:?}", parsed_command, parsed_options);
+    debug!("cmd : {:?}, opt : {:?}", parsed_command, parsed_options);
     (parsed_command, parsed_options)
 }
