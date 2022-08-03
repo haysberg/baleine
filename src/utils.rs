@@ -1,8 +1,8 @@
 use std::env::{self, VarError};
 use std::io::{Error};
-use std::process::{Command};
+use std::process::{Command, CommandArgs};
 use openssh::{Session, KnownHosts};
-use tracing::{info, debug, instrument};
+use tracing::{info, debug, instrument, error};
 
 
 /// Runs a command on a specified host.
@@ -14,19 +14,25 @@ use tracing::{info, debug, instrument};
 ///
 /// * `host` - name of the SSH host the command will be executed on
 /// * `command` - command to be executed on the remote host
+#[instrument]
 pub async fn ssh_command(host: String, commands: Vec<String>) -> Result<(), Error> {
     let session = Session::connect(format!("ssh://root@{host}:22"), KnownHosts::Accept)
     .await
     .expect(&format!("Could not establish session to host {}", host).as_str());
 
     for command in commands {
+        debug!(command);
         //We separate the command and arguments
         let mut iter = command.split(" ");
         let binary = iter.nth(0).unwrap();
-        iter.next();
-        let arguments : String = iter.collect();
+        let arguments : String = iter.map(|x| format!(" {}", x)).collect();
+        debug!(arguments);
         //We run the command
-        session.command(binary).raw_arg(arguments).output().await.unwrap();
+        let output = session.command(binary).raw_arg(arguments).output().await.unwrap();
+        match output.status.success() {
+            true => (),
+            false => error!("Could not deploy host {}", host)
+        }
     }
     
     session.close().await.unwrap();

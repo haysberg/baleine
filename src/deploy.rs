@@ -37,8 +37,8 @@ pub async fn deploy(
     );
 
     //We then create the command before sending it to the ssh_command() function
-    let commands: Vec<String> = vec!["docker stop container || true".to_string(),
-    "docker rm container || true".to_string(),
+    let commands: Vec<String> = vec!["docker stop container".to_string(),
+    "docker rm container".to_string(),
     format!("docker pull {image}", image = image),
     deploy_cmd];
 
