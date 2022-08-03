@@ -1,6 +1,6 @@
 use std::io::prelude::*;
-use crate::utils::ssh_command;
 use futures::future::join_all;
+use openssh::{Session, KnownHosts};
 use tracing::{error, info, instrument};
 
 /// This function stops and removes the container currently running on a node even if there is none.
@@ -10,25 +10,25 @@ use tracing::{error, info, instrument};
 /// * `node` - The node you wish to remove the Docker container currently running on
 #[instrument]
 pub async fn destroy(node : &str){
-    match ssh_command(node.to_string(), vec!["docker stop container".to_string(), "docker container prune -f".to_string()]).await{
-        Ok(_) => (),
-        Err(_) => error!("Error : could not connect to node {node}, are you sure it is on ?", node = node)
-    }
-}
+    let session = Session::connect(format!("ssh://root@{node}:22"), KnownHosts::Accept)
+    .await
+    .expect(&format!("Could not establish session to host {}", node).as_str());
 
-/// This function stops and removes the container currently running on a node if there is one.
-///
-/// # Arguments
-///
-/// * `node` - The node you wish to remove the Docker container currently running on
-#[instrument]
-pub async fn destroy_if_container(node : &str){
-    if crate::utils::container_deployed(node).await{
-        match ssh_command(node.to_string(), vec!["docker stop container".to_string(), "docker container prune -f".to_string()]).await{
-            Ok(_) => (),
-            Err(_) => error!("Error : could not connect to node {node}, are you sure it is on ?", node = node)
-        }
+    //We stop the previous container if there is one
+    let output = session.command("docker").raw_arg("stop container").output().await.unwrap();
+    match output.status.success() {
+        true => info!("Stopped container on {}", node),
+        false => error!("Could not stop container on {}, is there one present ?", node)
     }
+
+    //We delete the previous container if there is one
+    let output = session.command("docker").raw_arg("container prune -f").output().await.unwrap();
+    match output.status.success() {
+        true => info!("Deleted container on {}", node),
+        false => error!("Could not delete container on {}, is there one present ?", node)
+    }
+
+    session.close().await.unwrap();
 }
 
 /// Entry point for the destroy feature. 
