@@ -9,3 +9,4 @@
 - Way better handling of errors during deployment, giving more information when something fails
 - Trimmed down the number of used libraries
 - Added warnings when using default values when config file is not found
+- Formatted the logs so that they are easier to read
