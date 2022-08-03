@@ -1,8 +1,5 @@
-0.7
+0.8
 ------
-- /lib/modules, /var/run/dbus, /sys/fs/cgroup now mounted inside the container
-- added the DNS_ADDR configuration line to target a specific DNS server for name resolution
-- Changed the Docker image to run /sbin/init by default, to allow access to the systemctl command
 - Now using Tokio Tracing for log management
 - Fixed a bug where the terminal would get broken when multiple machines were deployed
 - Now using the openssh crate for managing machine instead of spawning a local process which speeds up deployment
