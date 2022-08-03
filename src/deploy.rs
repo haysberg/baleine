@@ -1,7 +1,9 @@
-use crate::utils::ssh_command;
-use crate::utils::stty_sane;
 use crate::utils::env_var;
-use crossbeam;
+use futures::future::join_all;
+use openssh::KnownHosts;
+use openssh::Session;
+use tracing::{error, info, warn};
+
 
 /// This function deploys a Docker container on a node given in input.
 ///
@@ -10,17 +12,16 @@ use crossbeam;
 /// * `image` - Reference to a String. Name of the Docker image you are deploying.
 /// * `options` - A list of string containing the different options given by the user. This is an Option object, so if no option has been given, it is going to be a None object.
 /// * `command` - A list of string containing the command and flags given by the user. This is an Option object, so if no command has been given, it is going to be a None object.
-pub fn deploy(
+pub async fn deploy(
     image: &String,
     options: &Option<Vec<String>>,
     command: &Option<Vec<String>>,
-    node: &str,
+    node: &String,
 ) {
     // We change the &Option<Vec<String>> object into a String using this method.
     let (command, options) = crate::utils::parse_cmd_opt(command, options);
 
-    //We then create the command before sending it to the ssh_command() function
-    let cmd = format!("docker pull {image} && docker run --name container {options} -v /home/container/container_fs:/var -v /lib/modules:/lib/modules -v /var/run/dbus:/var/run/dbus -v /sys/fs/cgroup:/sys/fs/cgroup --network=host --privileged --cap-add=ALL --dns {dns} {image} {command} && docker container ls -a",
+    let deploy_cmd = format!("run --name container {options} -v /home/container/container_fs:/var -v /lib/modules:/lib/modules -v /var/run/dbus:/var/run/dbus -v /sys/fs/cgroup:/sys/fs/cgroup --network=host --privileged --cap-add=ALL --dns {dns} {image} {command} && docker container ls -a",
         options = match options {
             None => format!(""),
             Some(content) => content
@@ -31,23 +32,45 @@ pub fn deploy(
             None => format!(""),
             Some(content) => content
         },
-        dns = env_var("DNS_ADDR").unwrap_or("192.168.3.100".to_string())
+        dns = env_var("DNS_ADDR").unwrap_or({
+            warn!("DNS_ADDR not set in config file, using 192.168.3.100 by default.");
+            "192.168.3.100".to_string()
+        })
     );
 
-    //Priting it just for debugging purposes
-    println!("Mapping : {}", cmd);
+    let session = Session::connect(format!("ssh://root@{node}:22"), KnownHosts::Accept)
+    .await
+    .expect(&format!("Could not establish session to host {}", node).as_str());
 
-    //We run the SSH command
-    match ssh_command(node.to_string(), cmd) {
-        Ok(_) => (),
-        Err(_) => println!(
-            "{}",
-            format!(
-                "Could not connect using SSH to {node}, is it on ?",
-                node = node
-            )
-        ),
+    //We stop the previous container if there is one
+    let output = session.command("docker").raw_arg("stop container").output().await.unwrap();
+    match output.status.success() {
+        true => info!("Stopped container on {}", node),
+        false => ()
     }
+
+    //We delete the previous container if there is one
+    let output = session.command("docker").raw_arg("rm container").output().await.unwrap();
+    match output.status.success() {
+        true => info!("Deleted container on {}", node),
+        false => ()
+    }
+
+    //We pull the docker image on the server
+    let output = session.command("docker").raw_arg(format!("pull {image}")).output().await.unwrap();
+    match output.status.success() {
+        true => info!("Pulled image {} on {}", image, node),
+        false => error!("Could not pull image {} on {}, output : {:?}", image, node, output.stdout)
+    }
+
+    //Then we deploy the new container
+    let output = session.command("docker").raw_arg(deploy_cmd).output().await.unwrap();
+    match output.status.success() {
+        true => info!("Successfully deployed image {} on {}", image, node),
+        false => error!("Could not deploy image {} on {}, output : {:?}", image, node, output.stdout)
+    }
+    
+    session.close().await.unwrap();
 }
 
 /// This is the entry function for the Deploy function.
@@ -61,7 +84,7 @@ pub fn deploy(
 /// * `bootstrap` - The name of the disk image we will deploy before deploying the Docker container. Option object.
 /// * `command` - The command that we will pass to the Docker container, overriding the possible entrypoint. Optional Vector of String, that might contain the name of the command and all the arguments given to it.
 /// For example : ["ls", "--all", "-t"]
-pub fn entry(
+pub async fn entry(
     image: &String,
     options: &Option<Vec<String>>,
     nodes: &Option<Vec<String>>,
@@ -69,54 +92,40 @@ pub fn entry(
     command: &Option<Vec<String>>,
 ) {
     //We call this function so that rhubarbe-nodes can parse our list of nodes provided by the user.
-    let nodes = crate::utils::list_of_nodes(nodes);
-
+    let mut nodes = crate::utils::list_of_nodes(nodes);
+    
     //We deploy the specified image if the --bootstrap option is used
     match bootstrap {
         Some(ndz) => {
-            crate::utils::bootstrap(ndz, &nodes);
-            crate::utils::rwait();
+            match crate::utils::bootstrap(ndz, &nodes).await {
+                Ok(_) => info!("Deployed {ndz} on hosts : {hosts}", ndz = ndz, hosts = nodes.clone().join(" ")),
+                Err(e) => error!("Could not deploy the chosen disk image, error : {}", e)
+            }
+
+            match crate::utils::rwait().await {
+                Ok(_) => (),
+                Err(e) => error!("Could not execute rwait, error : {}", e)
+            }
         }
         None => (),
     }
-
-    //We destroy the containers running before on the host
-    match crossbeam::scope(|scope| {
-        for node in nodes.split(" ") {
-            scope.spawn(move |_| {
-                crate::destroy::destroy_if_container(&node);
-            });
-        }
-    }) {
-        Ok(_) => (),
-        Err(_) => panic!("We could not destroy the running containers for an unknown reason."),
-    };
-
-    //We split our string from rhubarbe-nodes ("fit 01 fit02 fit03") into an array that we can iterate on (["fit01", "fit02", "fit03"])
-    let mut nodes: Vec<_> = nodes.split(" ").collect();
-
+    
     /*
      * We deploy the first node before all the others, to ensure that the docker image
      * will be pulled through the proxy for the rest of the nodes.
      * We use swap_remove as it always has a O(1) complexity.
      */
-    deploy(image, options, command, nodes.swap_remove(0));
+    let first_node = nodes.swap_remove(0);
+    info!("Deploying first node : {}", first_node);
+    deploy(image, options, command, &first_node).await;
 
     if !nodes.is_empty() {
-        //We then create a thread for each node, running the deploy command through SSH
-        match crossbeam::scope(|scope| {
-            for node in nodes {
-                scope.spawn(move |_| {
-                    deploy(image, options, command, &node);
-                });
-            }
-        }) {
-            //We display a message depending of the outcome of the commands
-            Ok(_) => println!("Deployment complete !"),
-            Err(_) => println!("ERROR DURING DEPLOYMENT"),
-        };
-    }
+        let mut tasks = Vec::new();
 
-    //Cleaning up the terminal output in case the terminal is botched.
-    stty_sane();
+        //we create threads and destroy the nodes
+        for node in nodes.iter(){
+            tasks.push(deploy(image, options, command, &node));
+        }
+        join_all(tasks).await;
+    }
 }
