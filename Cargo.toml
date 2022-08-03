@@ -29,5 +29,4 @@ tracing-subscriber = "*"
 openssh = "*"
 
 tokio = { version = "*", features = ["full"] }
-async-executor = "*"
-futures-lite = "*"
+futures = "*"

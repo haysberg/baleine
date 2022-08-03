@@ -1,7 +1,6 @@
 use crate::utils::ssh_command;
 use crate::utils::env_var;
-use async_executor::Executor;
-use futures_lite::future;
+use futures::future::join_all;
 use tracing::info;
 use tracing::{error};
 
@@ -89,16 +88,12 @@ pub async fn entry(
     deploy(image, options, command, &first_node).await;
 
     if !nodes.is_empty() {
-        // Create a new executor.
-        let ex = Executor::new();
         let mut tasks = Vec::new();
 
         //we create threads and destroy the nodes
         for node in nodes.iter(){
-            tasks.push(ex.spawn(deploy(image, options, command, &node)));
+            tasks.push(deploy(image, options, command, &node));
         }
-        for task in tasks {
-            future::block_on(task);
-        }
+        join_all(tasks).await;
     }
 }

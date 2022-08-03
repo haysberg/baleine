@@ -1,6 +1,6 @@
 use std::env::{self, VarError};
 use std::io::{Error};
-use std::process::{Command, CommandArgs};
+use std::process::{Command};
 use openssh::{Session, KnownHosts};
 use tracing::{info, debug, instrument, error};
 
