@@ -25,7 +25,9 @@ tempfile = "*"
 # we use tracing to handle logs
 tracing = "*"
 tracing-subscriber = "*"
-# rayon is used to parrallelize deployment
-rayon = "1.5"
 # ssh2 for remote connections
-ssh2 = "*"
+openssh = "*"
+
+tokio = { version = "*", features = ["full"] }
+async-executor = "*"
+futures-lite = "*"

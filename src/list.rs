@@ -10,7 +10,7 @@ use crate::utils::env_var;
 /// # Arguments
 ///
 /// * `details` - name of the image for which you want to display all the different versions available
-pub fn list (details: &Option<String>) {
+pub async fn list (details: &Option<String>) {
 
     //We generate the URL used to call the API
     let url = match details{
@@ -53,6 +53,6 @@ pub fn list (details: &Option<String>) {
 
 /// Entry function. Doesn't do anything right now.
 /// Was implemented for the sake of consistency
-pub fn entry (details: &Option<String>) {
-    list(details);
+pub async fn entry (details: &Option<String>) {
+    list(details).await;
 }

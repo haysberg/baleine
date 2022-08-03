@@ -11,7 +11,7 @@ extern crate dotenv;
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
 #[instrument]
-pub fn build(file: &Option<String>, url: &Option<String>, tags: &Vec<String>) {
+pub async fn build(file: &Option<String>, url: &Option<String>, tags: &Vec<String>) {
     let port = env_var("SAVE_PORT").unwrap_or("80".to_string());
     let primary_tag = tags.get(0).unwrap();
     let repo_url = env_var("SAVE_URL").unwrap_or("faraday.repo".to_string());
@@ -24,7 +24,7 @@ pub fn build(file: &Option<String>, url: &Option<String>, tags: &Vec<String>) {
 
     let push_args : String = tags.iter().map(|x| format!(" && docker push localhost:{port}/{x} && docker push {repo_url}/{x}")).collect();
 
-    match local_command(format!("{cmd}{push_args}")){
+    match local_command(format!("{cmd}{push_args}")).await{
         Ok(_) => (),
         Err(_) => error!("Error while running command {}{}", cmd, push_args)
     }
@@ -37,6 +37,6 @@ pub fn build(file: &Option<String>, url: &Option<String>, tags: &Vec<String>) {
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
 #[instrument]
-pub fn entry(file: &Option<String>, url: &Option<String>, tags: &Vec<String>) {
-    build(file, url, tags);
+pub async fn entry(file: &Option<String>, url: &Option<String>, tags: &Vec<String>) {
+    build(file, url, tags).await;
 }

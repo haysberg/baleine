@@ -1,10 +1,8 @@
 use std::env::{self, VarError};
-use std::io::{BufRead, BufReader, Error, ErrorKind, Read};
-use std::net::TcpStream;
-use std::process::{Command, Stdio};
-
-use ssh2::Session;
-use tracing::{trace, info, debug, instrument, error};
+use std::io::{Error};
+use std::process::{Command};
+use openssh::{Session, KnownHosts};
+use tracing::{info, debug, instrument};
 
 
 /// Runs a command on a specified host.
@@ -16,34 +14,24 @@ use tracing::{trace, info, debug, instrument, error};
 ///
 /// * `host` - name of the SSH host the command will be executed on
 /// * `command` - command to be executed on the remote host
-pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
-    // Connect to the local SSH server
-    let tcp = TcpStream::connect(format!("{}:22", host)).unwrap();
-    let mut sess = Session::new().unwrap();
-    sess.set_tcp_stream(tcp);
-    sess.handshake().unwrap();
-    sess.agent().unwrap().list_identities();
-    for id in sess.agent().unwrap().identities().unwrap(){
-        match sess.agent().unwrap().userauth("root", &id){
-            Ok(_) => {
-                let mut channel = sess.channel_session().unwrap();
-                channel.exec(&command).unwrap();
-                let mut s = String::new();
-                channel.read_to_string(&mut s).unwrap();
-                println!("{}", s);
-                channel.wait_close();
-                println!("{}", channel.exit_status().unwrap());
-            
-                return Ok(())
-            },
-            Err(_) => ()
-        }
+pub async fn ssh_command(host: String, commands: Vec<String>) -> Result<(), Error> {
+    let session = Session::connect(format!("ssh://root@{host}:22"), KnownHosts::Strict)
+    .await
+    .expect(&format!("Could not establish session to host {}", host).as_str());
+
+    for command in commands {
+        //We separate the command and arguments
+        let mut iter = command.split(" ");
+        let binary = iter.nth(0).unwrap();
+        iter.next();
+        let arguments : String = iter.collect();
+        //We run the command
+        session.command(binary).raw_arg(arguments).output().await.unwrap();
     }
+    
+    session.close().await.unwrap();
 
-    return Err(Error::new(ErrorKind::Other, "oh no!"));
-    //sess.userauth_agent("root").unwrap();
-
-
+    Ok(())
 }
 
 /// Runs a command on a specified host.
@@ -56,7 +44,7 @@ pub fn ssh_command(host: String, command: String) -> Result<(), Error> {
 /// * `host` - name of the SSH host the command will be executed on
 /// * `command` - command to be executed on the remote host
 #[instrument]
-pub fn local_command(command: String) -> Result<(), Error> {
+pub async fn local_command(command: String) -> Result<(), Error> {
     info!("command : {:?}", command);
 
     Command::new("bash")
@@ -77,7 +65,7 @@ pub fn local_command(command: String) -> Result<(), Error> {
 /// * `image` - the .ndz image to deploy
 /// * `nodes` - list of slave nodes affected
 #[instrument]
-pub fn bootstrap(image: &String, nodes: &Vec<String>) {
+pub async fn bootstrap(image: &String, nodes: &Vec<String>) {
     let tmp_nodes : String = nodes.iter().map(|x| format!("{} ", x)).collect();
     //Run the imaging through rhubarbe
     Command::new("/usr/local/bin/rhubarbe-load")
@@ -92,7 +80,7 @@ pub fn bootstrap(image: &String, nodes: &Vec<String>) {
 /// 
 /// So if we don't, the program fails and crashes.
 #[instrument]
-pub fn rwait() {
+pub async fn rwait() {
     //rwait
     Command::new("/usr/local/bin/rhubarbe-wait").spawn();
 }
@@ -118,7 +106,7 @@ pub fn env_var(key: &str) -> Result<String, VarError> {
 ///
 /// * `host` - the slave node we want to check
 #[instrument]
-pub fn container_deployed(host: &str) -> bool {
+pub async fn container_deployed(host: &str) -> bool {
     let output = Command::new("ssh")
         .arg(format!("root@{host}", host = host))
         .arg("-t")

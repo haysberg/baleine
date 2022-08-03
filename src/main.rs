@@ -16,7 +16,8 @@ use tracing::{warn, instrument};
 use tracing_subscriber;
 
 #[instrument]
-fn main() {
+#[tokio::main]
+async fn main() {
     //Initializing the log display
     tracing_subscriber::fmt::init();
 
@@ -37,10 +38,10 @@ fn main() {
 
     //Depending on what subcommand the user has put in the CLI, we call the related function.
     match &args.action {
-        Action::Deploy { image, options, nodes, bootstrap, command } => deploy::entry(image, options, nodes, bootstrap, command),
-        Action::Destroy { yes, nodes } => destroy::entry(yes, nodes),
-        Action::List { details } => list::entry(details),
-        Action::Save { name, node } => save::entry(name, node),
-        Action::Build { file, tags, url } => build::entry(file, url, tags)
+        Action::Deploy { image, options, nodes, bootstrap, command } => deploy::entry(image, options, nodes, bootstrap, command).await,
+        Action::Destroy { yes, nodes } => destroy::entry(yes, nodes).await,
+        Action::List { details } => list::entry(details).await,
+        Action::Save { name, node } => save::entry(name, node).await,
+        Action::Build { file, tags, url } => build::entry(file, url, tags).await
     }
 }

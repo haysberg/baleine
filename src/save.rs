@@ -11,7 +11,7 @@ extern crate dotenv;
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
 #[instrument]
-pub fn save(name: &String, node: &str) {
+pub async fn save(name: &String, node: &str) {
     //We create the string for the command that we are going to execute remotely.
     //Here, we create a new image from the running container on the node, and push it to the
     //remote registry.
@@ -21,7 +21,7 @@ pub fn save(name: &String, node: &str) {
 
     //We run the docker commit container command on the node. If the ssh_command() function doesn't work
     //We display an error message
-    match ssh_command(node.to_string(), cmd) {
+    match ssh_command(node.to_string(), vec![cmd]).await {
         Ok(_) => (),
         Err(_) => error!("Could not connect to {node}, is it on ?", node = node),
     }
@@ -34,7 +34,7 @@ pub fn save(name: &String, node: &str) {
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
 #[instrument]
-pub fn entry(name: &String, node: &String) {
+pub async fn entry(name: &String, node: &String) {
     //We then run rhubarbe nodes with the nodes.
     //This is a prerequisite to save the nodes
     let output = Command::new("rhubarbe")
@@ -51,6 +51,6 @@ pub fn entry(name: &String, node: &String) {
 
     //for each of the nodes, we run the save() function
     for node in nodes {
-        save(name, node);
+        save(name, node).await;
     }
 }
