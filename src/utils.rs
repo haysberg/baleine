@@ -15,7 +15,7 @@ use tracing::{info, debug, instrument};
 /// * `host` - name of the SSH host the command will be executed on
 /// * `command` - command to be executed on the remote host
 pub async fn ssh_command(host: String, commands: Vec<String>) -> Result<(), Error> {
-    let session = Session::connect(format!("ssh://root@{host}:22"), KnownHosts::Strict)
+    let session = Session::connect(format!("ssh://root@{host}:22"), KnownHosts::Accept)
     .await
     .expect(&format!("Could not establish session to host {}", host).as_str());
 
