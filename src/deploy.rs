@@ -3,7 +3,6 @@ use crate::utils::env_var;
 use async_executor::Executor;
 use futures_lite::future;
 use tracing::info;
-use tracing::instrument;
 use tracing::{error};
 
 
@@ -86,6 +85,7 @@ pub async fn entry(
      * We use swap_remove as it always has a O(1) complexity.
      */
     let first_node = nodes.swap_remove(0);
+    info!("Deploying first node : {}", first_node);
     deploy(image, options, command, &first_node).await;
 
     if !nodes.is_empty() {
@@ -95,7 +95,7 @@ pub async fn entry(
 
         //we create threads and destroy the nodes
         for node in nodes.iter(){
-            tasks.push(deploy(image, options, command, &node));
+            tasks.push(ex.spawn(deploy(image, options, command, &node)));
         }
         for task in tasks {
             future::block_on(task);

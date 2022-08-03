@@ -68,7 +68,7 @@ pub async fn entry(yes: &bool, nodes: &Option<Vec<String>>){
 
         //we create threads and destroy the nodes
         for node in nodes.iter(){
-            tasks.push(destroy(&node));
+            tasks.push(ex.spawn(destroy(&node)));
         }
         for task in tasks {
             future::block_on(task);
