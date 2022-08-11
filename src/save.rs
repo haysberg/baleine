@@ -5,22 +5,21 @@ use tracing::{error, info, warn};
 
 extern crate dotenv;
 
-/// This function takes a container running on a node and saves it to the remote registry configured in config.toml
+/// This function takes a container running on a node and saves it to the remote registry configured in /etc/baleine/baleine.conf
 ///
 /// # Arguments
 ///
 /// * `name` - name of the image that you are creating
 /// * `node` - target slave node that will be saved
-
 pub async fn save(name: &String, node: &str) {
-    //Here, we create a new image from the running container on the node, and push it to the
-    //remote registry.
-    
+
+    // We parse the SAVE_URL parameter    
     let repo = env_var("SAVE_URL").unwrap_or({
         warn!("SAVE_URL not set in config file, using faraday.repo by default.");
         "faraday.repo".to_string()
     });
 
+    //We create the SSH session
     let session = Session::connect(format!("ssh://root@{node}:22"), KnownHosts::Accept)
     .await
     .expect(&format!("Could not establish session to host {}", node).as_str());

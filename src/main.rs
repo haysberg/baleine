@@ -12,12 +12,13 @@ extern crate dotenv;
 use std::path::Path;
 use crate::args::{EntryArgs, Action};
 use clap::{Parser};
-use tracing::{warn, };
+use tracing::{warn};
 use tracing_subscriber;
 use tracing_subscriber::fmt;
 
 #[tokio::main]
 async fn main() {
+    // We initialize the logs formatting
     let format = fmt::format()
     .with_level(true)
     .with_timer(())

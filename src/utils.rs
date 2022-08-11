@@ -4,15 +4,9 @@ use std::process::{Command};
 use tracing::{info, debug};
 
 /// Runs a command on a specified host.
-/// Please note that it doesn't use the SSH2 crate, but instead the included ssh binary on the master machine.
+/// Please note that it uses the bash binary on the machine
 /// 
 /// The output is printed in real time and is piped to the current terminal stdout.
-///
-/// # Arguments
-///
-/// * `host` - name of the SSH host the command will be executed on
-/// * `command` - command to be executed on the remote host
-
 pub async fn local_command(command: String) -> Result<(), Error> {
     info!("command : {:?}", command);
 
@@ -23,7 +17,6 @@ pub async fn local_command(command: String) -> Result<(), Error> {
             Ok(_) => Ok(()),
             Err(e) => Err(e)
         }
-
 }
 
 /// This function deploys the given disk image (.ndz) on the slave node.
@@ -35,7 +28,6 @@ pub async fn local_command(command: String) -> Result<(), Error> {
 ///
 /// * `image` - the .ndz image to deploy
 /// * `nodes` - list of slave nodes affected
-
 pub async fn bootstrap(image: &String, nodes: &Vec<String>) -> Result<(), Error> {
     let tmp_nodes : String = nodes.iter().map(|x| format!("{} ", x)).collect();
     //Run the imaging through rhubarbe
@@ -53,7 +45,6 @@ pub async fn bootstrap(image: &String, nodes: &Vec<String>) -> Result<(), Error>
 /// This is important because if we don't do this, we send SSH commands to a machine that is not ready yet.
 /// 
 /// So if we don't, the program fails and crashes.
-
 pub async fn rwait() -> Result<(), Error> {
     //rwait
     match Command::new("/usr/local/bin/rhubarbe-wait").spawn(){
@@ -67,7 +58,6 @@ pub async fn rwait() -> Result<(), Error> {
 /// # Arguments
 ///
 /// * `key` - The environment variable we are looking for
-
 pub fn env_var(key: &str) -> Result<String, VarError> {
     match env::var(key) {
         Ok(_) => Ok(env::var(key).unwrap()),
@@ -86,7 +76,6 @@ pub fn env_var(key: &str) -> Result<String, VarError> {
 /// # Arguments
 ///
 /// * `nodes` - the list of nodes we are sending
-
 pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> Vec<String> {
     return match nodes {
         Some(nodes) => {
@@ -117,7 +106,10 @@ pub fn list_of_nodes(nodes: &Option<Vec<String>>) -> Vec<String> {
     }
 }
 
-
+/// This command parses the command argument and the options argument.
+/// When the CLI loads, if both are used at the same time,
+/// the first one takes precedence and gets all the arguments.
+/// We have to split them up using this function.
 pub fn parse_cmd_opt(command: &Option<Vec<String>>, options: &Option<Vec<String>>) -> (Option<String>, Option<String>) {
     let mut parsed_options : Option<String> = None;
     let mut parsed = false;

@@ -30,7 +30,6 @@ pub async fn list (details: &Option<String>) {
         address = env_var("REGISTRY_URL").unwrap_or("faraday".to_string())),
     };
     
-    
     //We call the API in question...
     let result = match reqwest::blocking::get(url) {
         Ok(value) => value.text().unwrap(),

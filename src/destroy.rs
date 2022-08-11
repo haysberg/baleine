@@ -8,8 +8,9 @@ use tracing::{error, info, };
 /// # Arguments
 ///
 /// * `node` - The node you wish to remove the Docker container currently running on
-
 pub async fn destroy(node : &str){
+
+    //We create the SSH session
     let session = Session::connect(format!("ssh://root@{node}:22"), KnownHosts::Accept)
     .await
     .expect(&format!("Could not establish session to host {}", node).as_str());

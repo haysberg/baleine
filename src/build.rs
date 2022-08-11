@@ -15,8 +15,11 @@ pub async fn build(file: &Option<String>, url: &Option<String>, tags: &Vec<Strin
         "80".to_string()
     });
 
+    //We extract the first tag in the list as the primary one
     let primary_tag = tags.get(0).unwrap();
 
+    //We parse the repository URL from /etc/baleine/baleine.config
+    //We can also override that with environment variables
     let repo_url = env_var("SAVE_URL").unwrap_or({
         warn!("SAVE_URL not set in config file, using faraday.repo by default.");
         "faraday.repo".to_string()
