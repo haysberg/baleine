@@ -24,6 +24,7 @@ Using the four subcommands of this tool, you can deploy Docker containers on top
 - `destroy` to remove the containers
 - `save` to save a running container as a new image on the local R2Lab repository
 - `list` to get a list of all the images on the repository
+- `build` to build an image from either a local Dockerfile or from a URL, and save it to the R2Lab repo
 
 To see the full list of available options, please check [the docs](https://github.com/haysberg/baleine/wiki)
 
@@ -47,6 +48,7 @@ which baleine
 Please note : you can deploy it in the gateway or anywhere else as long as it is reachable by your gateway and nodes.
 
 You will need Docker and docker-compose to run the file.
+
 ```sh
 wget https://raw.githubusercontent.com/haysberg/baleine/main/setup_files/gateway/docker-compose.yml
 
@@ -54,7 +56,7 @@ wget https://raw.githubusercontent.com/haysberg/baleine/main/setup_files/gateway
 docker compose up -d
 ```
 
-### Slave node
+### Worker node
 This script is made to run on Ubuntu-based systems. It **should** work on Debian systems as well, but it is untested so far.
 
 ```sh
@@ -80,6 +82,8 @@ REGISTRY_URL = "faraday"
 SAVE_URL = "faraday.repo"
 REGISTRY_PROTOCOL = "http://"
 DEFAULT_BOOTSTRAP_IMAGE="baleine"
+SAVE_PORT = 80
+DNS_ADDR = "192.168.3.100"
 ```
 
 ### Slave node
@@ -105,25 +109,7 @@ You can get a better understanding of the configuration if you look at the [dock
 
 The default user is added to the `docker` UNIX group so that you don't need to be `root` on the machine to use Docker.
 
-Users can login directly into the container by connecting as `container@fitxx` instead of logging in as `root`.
-The user `container` has a special shell added as the default one, named `rdsh` (Remote Docker SHell). It is listed in `/etc/shells` and the actual shell is in `/bin/rdsh`. Here is the content of the shell :
-
-```bash
-#!/bin/bash
-
-if ! docker inspect container > /dev/null 2>&1; then
-    echo "No running container on the machine. It might be stopped ?"
-    exit 1
-elif [[ -z "$@" ]]; then
-    docker exec -it container /bin/bash
-else
-    case "$1" in
-	"-c") shift;;
-    esac
-    docker exec container "$@"
-fi
-```
-
+Users can login directly into the container by connecting as `root@fitxx` on port `2222` instead of logging in on port `22`.
 
 ## Need help ?
 
